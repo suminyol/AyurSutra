@@ -102,7 +102,7 @@ const RegisterPage = () => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Phone number
+              Phone number (optional)
             </label>
             <div className="mt-1">
               <input
@@ -146,7 +146,7 @@ const RegisterPage = () => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Date of birth
+              Date of birth (optional)
             </label>
             <div className="mt-1">
               <input
@@ -159,7 +159,7 @@ const RegisterPage = () => {
 
           <div>
             <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Gender 
+              Gender (optional)
             </label>
             <div className="mt-1">
               <select
