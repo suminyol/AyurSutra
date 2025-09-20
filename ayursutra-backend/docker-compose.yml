@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: ayursutra-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: ayursutra
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - ayursutra-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: ayursutra-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ayursutra-network
+
+  # AyurSutra Backend API
+  backend:
+    build: .
+    container_name: ayursutra-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/ayursutra?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your_super_secret_jwt_key_here
+      JWT_EXPIRE: 7d
+      JWT_REFRESH_SECRET: your_refresh_secret_key_here
+      JWT_REFRESH_EXPIRE: 30d
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your_email@gmail.com
+      EMAIL_PASS: your_app_password
+      EMAIL_FROM: noreply@ayursutra.com
+      RAZORPAY_KEY_ID: your_razorpay_key_id
+      RAZORPAY_KEY_SECRET: your_razorpay_key_secret
+      STRIPE_PUBLISHABLE_KEY: your_stripe_publishable_key
+      STRIPE_SECRET_KEY: your_stripe_secret_key
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ayursutra-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ayursutra-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    networks:
+      - ayursutra-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  ayursutra-network:
+    driver: bridge
