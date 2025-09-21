@@ -15,6 +15,7 @@ const appointmentRoutes = require('./routes/appointment');
 const treatmentRoutes = require('./routes/treatment');
 const paymentRoutes = require('./routes/payment');
 const notificationRoutes = require('./routes/notification');
+const therapyRoutes = require('./routes/therapy');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -71,6 +72,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/treatments', treatmentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/therapy', therapyRoutes);
 
 // Swagger documentation
 if (process.env.NODE_ENV === 'development') {

@@ -1,14 +1,28 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { Cog6ToothIcon, SunIcon, MoonIcon, BellIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const SettingsPage = () => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteSuccess, setDeleteSuccess] = useState('');
+  const navigate = useNavigate();
   const { mode, toggle, isDark } = useTheme();
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
     sms: false,
   });
+  // Change password modal state (moved to top level)
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const handleNotificationChange = (key) => {
     setNotifications(prev => ({
@@ -158,22 +172,67 @@ const SettingsPage = () => {
                   Update your account password
                 </p>
               </div>
-              <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+              <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" onClick={() => setShowPasswordModal(true)}>
                 Change
               </button>
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-full max-w-sm">
+            <h3 className="text-lg font-bold mb-4">Change Password</h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setPasswordError('');
+                setPasswordSuccess('');
+                setPasswordLoading(true);
+                try {
+                  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/change-password`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}`
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                  });
+                  const data = await res.json();
+                  if (!res.ok || !data.success) {
+                    setPasswordError(data.message || 'Failed to change password');
+                  } else {
+                    setPasswordSuccess('Password changed successfully!');
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setShowPasswordModal(false);
+                  }
+                } catch (err) {
+                  setPasswordError('Server error');
+                } finally {
+                  setPasswordLoading(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block mb-1">Current Password</label>
+                <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full p-2 border rounded" required />
+              </div>
+              <div>
+                <label className="block mb-1">New Password</label>
+                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-2 border rounded" required />
+              </div>
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+              {passwordSuccess && <p className="text-green-500 text-sm">{passwordSuccess}</p>}
+              <div className="flex justify-end space-x-2">
+                <button type="button" className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200" onClick={() => setShowPasswordModal(false)} disabled={passwordLoading}>Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white" disabled={passwordLoading}>{passwordLoading ? 'Saving...' : 'Save'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Add an extra layer of security to your account
-                </p>
-              </div>
-              <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-                Enable
-              </button>
-            </div>
+            
           </div>
         </div>
 
@@ -190,9 +249,15 @@ const SettingsPage = () => {
                   Permanently delete your account and all data
                 </p>
               </div>
-              <button className="px-4 py-2 border border-red-300 dark:border-red-600 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20">
+              <button
+                className="px-4 py-2 border border-red-300 dark:border-red-600 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20"
+                onClick={() => setShowDeleteModal(true)}
+                disabled={deleteLoading}
+              >
                 Delete
               </button>
+              {deleteError && <p className="text-red-500 text-sm mt-2">{deleteError}</p>}
+              {deleteSuccess && <p className="text-green-500 text-sm mt-2">{deleteSuccess}</p>}
             </div>
           </div>
         </div>
