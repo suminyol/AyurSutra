@@ -12,104 +12,56 @@ const registerRateLimit = authRateLimit(3, 60 * 60 * 1000); // 3 attempts per ho
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
+// @desc    Register user
+// @route   POST /api/auth/register
+// @access  Public
+// PASTE THIS ENTIRE FUNCTION INTO authController.js
 const register = async (req, res) => {
+  console.log('--- BACKEND RECEIVED BODY ---', req.body); // Final check
   try {
-    const { name, email, password, phone, dateOfBirth, gender, role = 'patient' } = req.body;
+    const {
+      name, email, password, phone, dateOfBirth, gender, role = 'patient',
+      // Doctor fields
+      doctorId, qualification, specialization, yearsOfExperience
+    } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findByEmailOrPhone(email);
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User with this email or phone already exists'
-      });
+      return res.status(400).json({ message: 'User with this email or phone already exists' });
     }
 
-    // Create user
     const user = await User.create({
-      name,
-      email,
-      password,
-      phone,
-      dateOfBirth,
-      gender,
-      role
+      name, email, password, phone, dateOfBirth, gender, role
     });
-
-    // Generate tokens
-    const token = generateToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
-
-    // Generate email verification token
-    const emailVerificationToken = user.generateEmailVerificationToken();
-    await user.save();
-
-    // Generate phone verification token
-    const phoneVerificationToken = user.generatePhoneVerificationToken();
-    await user.save();
-
-    // Create role-specific profile
-    if (role === 'patient') {
+    
+    if (role === 'doctor') {
+      // Use a try/catch here to be safe, but the validator should catch errors first
+      await Doctor.create({
+        user: user._id,
+        doctorID: doctorId,
+        specialization: specialization,
+        qualification: qualification,
+        yearsOfExperience: yearsOfExperience,
+      });
+    } else {
       await Patient.create({ user: user._id });
-    } else if (role === 'doctor') {
-      await Doctor.create({ user: user._id });
     }
-
-    // Send verification emails/SMS
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: 'Welcome to AyurSutra - Verify Your Email',
-        template: 'emailVerification',
-        data: {
-          name: user.name,
-          token: emailVerificationToken
-        }
-      });
-
-      await sendSMS({
-        to: user.phone,
-        message: `Your AyurSutra verification code is: ${phoneVerificationToken}. Valid for 10 minutes.`
-      });
-    } catch (emailError) {
-      console.error('Email/SMS sending error:', emailError);
-      // Don't fail registration if email/SMS fails
-    }
-
-    // Set refresh token as httpOnly cookie
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    });
-
+    
+    const token = generateToken(user._id);
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please verify your email and phone.',
-      data: {
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          isPhoneVerified: user.isPhoneVerified
-        },
-        token
-      }
+      message: 'User registered successfully.',
+      data: { user: { id: user._id, name: user.name, role: user.role }, token }
     });
+
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('!!! REGISTRATION FAILED !!!', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Registration failed. Please try again.',
-      error:error
+      message: error.message || 'Registration failed at the controller level.',
     });
   }
 };
-
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
@@ -505,7 +457,8 @@ const resetPassword = async (req, res) => {
 };
 
 module.exports = {
-  register: [registerRateLimit, register],
+  // register: [registerRateLimit, register],
+  register:  register,
   login: [loginRateLimit, login],
   logout,
   refreshToken,

@@ -21,11 +21,31 @@ const RegisterPage = () => {
     watch,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phone: '',
+      dateOfBirth: '',
+      gender: '',
+      // Initialize all doctor fields, even though they are hidden
+      doctorId: '',
+      qualification: '',
+      specialization: '',
+      yearsOfExperience: 0,
+    }
+});
 
   const password = watch('password');
 
   const onSubmit = async (data) => {
+    console.log("--- FINAL DATA OBJECT ON FRONTEND ---", data);
+    data.role = isDoctor ? 'doctor' : 'patient';
+    if (data.yearsOfExperience) {
+    data.yearsOfExperience = parseInt(data.yearsOfExperience, 10);
+  }
     try {
       await dispatch(registerUser(data)).unwrap();
       toast.success('Registration successful!');
@@ -37,7 +57,7 @@ const RegisterPage = () => {
 
   const handleToggle = (isDoc) => {
     setIsDoctor(isDoc);
-    reset();
+//    reset(); 
   };
 
   return (
@@ -158,20 +178,28 @@ const RegisterPage = () => {
             </div>
             
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Specialization
-                </label>
-                <div className="mt-1">
-                  <input
-                    {...register('specialization', { required: 'Specialization is required' })}
-                    type="text"
-                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                    placeholder="e.g., Panchakarma, Kayachikitsa"
-                  />
-                  {errors.specialization && <p className="mt-1 text-sm text-red-600">{errors.specialization.message}</p>}
-                </div>
-              </div>
+              
+            <div>
+            <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Specialization
+            </label>
+            <div className="mt-1">
+                <select
+                {...register('specialization', { required: 'Specialization is required' })}
+                className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                >
+                <option value="">Select a specialization</option>
+                <option value="General Medicine">General Medicine</option>
+                <option value="Panchakarma Specialist">Panchakarma Specialist</option>
+                <option value="Ayurvedic Medicine">Ayurvedic Medicine</option>
+                <option value="Internal Medicine">Internal Medicine</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Women's Health">Women's Health</option>
+                {/* Add other options from your Doctor.js model here */}
+                </select>
+                {errors.specialization && <p className="mt-1 text-sm text-red-600">{errors.specialization.message}</p>}
+            </div>
+            </div>
 
               <div>
                 <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -247,7 +275,7 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          <input type="hidden" {...register('role', { required: true })} value={isDoctor ? 'doctor' : 'patient'} />
+          
         </div>
 
         <div>

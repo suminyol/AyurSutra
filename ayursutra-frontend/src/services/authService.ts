@@ -27,43 +27,34 @@ class AuthService {
     }
   }
 
-  async register(userData: RegisterForm): Promise<{ user: User; token: string }> {
-    try {
-      // Only send required fields and ensure valid formats
-      const sanitizedData = {
-        name: userData.name,
-        email: userData.email,
-        password: userData.password,
-        role: userData.role,
-        phone: userData.phone ?? '',
-        dateOfBirth: userData.dateOfBirth ?? '',
-        gender: userData.gender ?? 'other',
-      };
-      // Optionally, format dateOfBirth to ISO string if present
-      if (sanitizedData.dateOfBirth) {
-        sanitizedData.dateOfBirth = new Date(sanitizedData.dateOfBirth).toISOString().split('T')[0];
-      }
-      const response = await fetch(`${this.baseURL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(sanitizedData),
-      });
+// In authService.ts
 
-      const data: ApiResponse<{ user: User; token: string }> = await response.json();
+async register(userData: RegisterForm): Promise<{ user: User; token: string }> {
+  try {
+    // REMOVED the problematic 'sanitizedData' block.
+    // We are now sending the original, complete 'userData' object directly.
+    const response = await fetch(`${this.baseURL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
 
-      if (!response.ok) {
-        console.error('Registration failed:', data);
-        throw new Error(data.message || 'Registration failed');
-      }
+    const data: ApiResponse<{ user: User; token: string }> = await response.json();
 
-      return data.data;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+    if (!response.ok) {
+      console.error('Registration failed:', data);
+      // Throw the detailed error object from the backend
+      throw data; 
     }
+
+    return data.data;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
   }
+}
 
   async logout(): Promise<void> {
     try {

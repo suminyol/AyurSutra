@@ -18,31 +18,25 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 // User registration validation
+// In validation.js
+
+// User registration validation
+// PASTE THIS ENTIRE ARRAY INTO validation.js
 const validateUserRegistration = [
-  body('name')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters'),
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Please provide a valid email address'),
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
-  body('phone')
-    .matches(/^[\+]?[1-9][\d]{0,15}$/)
-    .withMessage('Please provide a valid phone number'),
-  body('dateOfBirth')
-    .isISO8601()
-    .withMessage('Please provide a valid date of birth'),
-  body('gender')
-    .isIn(['male', 'female', 'other'])
-    .withMessage('Gender must be male, female, or other'),
-  body('role')
-    .optional()
-    .isIn(['patient', 'doctor'])
-    .withMessage('Role must be patient or doctor'),
+  body('name').trim().isLength({ min: 2 }).withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('phone').notEmpty().withMessage('Phone is required'),
+  body('dateOfBirth').isDate().withMessage('A valid date of birth is required'),
+  body('gender').isIn(['male', 'female', 'other']).withMessage('Gender is required'),
+  body('role').optional().isIn(['patient', 'doctor']),
+  
+  // Conditional Doctor Validations
+  body('doctorId').if(body('role').equals('doctor')).notEmpty().withMessage('Doctor ID is required'),
+  body('specialization').if(body('role').equals('doctor')).notEmpty().withMessage('Specialization is required'),
+  body('qualification').if(body('role').equals('doctor')).notEmpty().withMessage('Qualification is required'),
+  body('yearsOfExperience').if(body('role').equals('doctor')).notEmpty().withMessage('Years of experience is required').isInt({ min: 0 }).withMessage('Years of experience must be a non-negative number'),
+
   handleValidationErrors
 ];
 
