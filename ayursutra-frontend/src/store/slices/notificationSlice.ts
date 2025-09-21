@@ -87,25 +87,25 @@ const notificationSlice = createSlice({
         state.error = null;
       })
     .addCase(fetchNotifications.fulfilled, (state, action) => {
-        state.isLoading = false;
-        // Fix the payload structure handling
-        let notifications = [];
-        
-        if (Array.isArray(action.payload)) {
-          notifications = action.payload;
-        } else if (action.payload && Array.isArray(action.payload.notifications)) {
-          notifications = action.payload.notifications;
-        } else if (action.payload && Array.isArray(action.payload.data)) {
-          notifications = action.payload.data;
-        } else {
-          console.warn('Unexpected notification payload format:', action.payload);
-          notifications = [];
-        }
-        
-        state.notifications = notifications;
-        state.unreadCount = notifications.filter(n => !n.isRead).length;
-        state.error = null;
-      })
+  state.isLoading = false;
+  // This is the robust payload handling from your local version
+  let notifications = [];
+  
+  if (Array.isArray(action.payload)) {
+    notifications = action.payload;
+  } else if (action.payload && Array.isArray(action.payload.notifications)) {
+    notifications = action.payload.notifications;
+  } else if (action.payload && Array.isArray(action.payload.data)) {
+    notifications = action.payload.data;
+  } else {
+    console.warn('Unexpected notification payload format:', action.payload);
+    notifications = [];
+  }
+  
+  state.notifications = notifications;
+  state.unreadCount = notifications.filter(n => !n.isRead).length;
+  state.error = null;
+})
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;

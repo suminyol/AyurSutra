@@ -6,9 +6,9 @@ const doctorSchema = new Schema({
     ref: 'User',
     required: true
   },
-  licenseNumber: {
+ doctorID: {
     type: String,
-    //required: [true, 'Medical license number is required'],
+    required: [true, 'Doctor ID is required'],
     unique: true
   },
   specialization: {
@@ -32,16 +32,9 @@ const doctorSchema = new Schema({
   qualifications: [{
     degree: {
       type: String,
-      //required: true
+      required: true
     },
-    institution: {
-      type: String,
-      //required: true
-    },
-    year: {
-      type: Number,
-     // required: true
-    },
+    
     specialization: String
   }],
   experience: {
