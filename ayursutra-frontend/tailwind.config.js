@@ -1,12 +1,16 @@
 /** @type {import('tailwindcss').Config} */
+const colors = require('tailwindcss/colors');
+
 module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        // Existing palettes
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -42,7 +46,19 @@ module.exports = {
           700: '#15803d',
           800: '#166534',
           900: '#14532d',
-        }
+        },
+
+        // Brand palette
+        brand: {
+          cream: '#F9F7F3',
+          charcoal: '#2E2E2E',
+          green: {
+            light: '#EBF0E5',
+            DEFAULT: '#587A58',
+            dark: '#3A643A',
+          },
+          ochre: '#D4A056',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -66,5 +82,4 @@ module.exports = {
     },
   },
   plugins: [],
-  darkMode: 'class',
-}
+};
