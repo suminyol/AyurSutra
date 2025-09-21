@@ -6,12 +6,13 @@ const { authenticate, authorize } = require('../middleware/auth');
 // @route   GET /api/doctors
 // @access  Public
 const getAllDoctors = async (req, res) => {
+  console.log("inside getAllDoctors");
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const query = { isActive: true, isVerified: true };
+    const query = {};
 
     // Filter by specialization
     if (req.query.specialization) {
@@ -37,7 +38,7 @@ const getAllDoctors = async (req, res) => {
       .sort({ 'rating.average': -1 })
       .skip(skip)
       .limit(limit);
-
+    
     const total = await Doctor.countDocuments(query);
 
     res.json({

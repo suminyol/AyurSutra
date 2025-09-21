@@ -16,8 +16,8 @@ const initialState: DoctorState = {
 
 export const fetchDoctors = createAsyncThunk('doctors/fetch', async (_, { rejectWithValue }) => {
   try {
-    const doctors = await doctorService.getDoctors();
-    return doctors;
+    const response = await doctorService.getAllDoctors();
+    return response.doctors;
   } catch (error: any) {
     return rejectWithValue(error.message);
   }

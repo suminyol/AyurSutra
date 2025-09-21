@@ -119,24 +119,26 @@ const PatientDashboard = () => {
                 </div>
               ) : upcomingAppointments.length > 0 ? (
                 <div className="space-y-3">
-                  {upcomingAppointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {session.therapyType?.name || 'Therapy Session'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(session.scheduledDate).toLocaleDateString()} at {session.startTime}
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {session.status}
-                      </span>
+                  // This is the new, corrected code
+                {upcomingAppointments.map((appointment) => (
+                  <div
+                    key={appointment.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {/* Use 'appointment' and the correct properties from your new model */}
+                        {(appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1))} with Dr. {appointment.doctor?.user?.name || '...'}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
+                      </p>
                     </div>
-                  ))}
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {appointment.status}
+                    </span>
+                  </div>
+                ))}
                 </div>
               ) : (
                 <div className="text-center py-6">

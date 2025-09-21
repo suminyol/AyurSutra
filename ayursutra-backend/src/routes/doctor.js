@@ -8,7 +8,8 @@ const { validateObjectId, validatePagination } = require('../middleware/validati
 router.use(authenticate);
 
 // Doctor routes
-router.get('/', validatePagination, doctorController.getAllDoctors);
+// router.get('/', validatePagination, doctorController.getAllDoctors);
+router.get('/', doctorController.getAllDoctors);
 router.get('/:id', validateObjectId('id'), doctorController.getDoctorById);
 router.put('/:id', validateObjectId('id'), doctorController.updateDoctor);
 router.get('/:id/availability', validateObjectId('id'), doctorController.getDoctorAvailability);

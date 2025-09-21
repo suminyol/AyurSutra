@@ -26,7 +26,6 @@ const LoginPage = () => {
     try {
       await dispatch(loginUser(data)).unwrap();
       toast.success('Login successful!');
-      navigate(from, { replace: true });
     } catch (error) {
       toast.error(error || 'Login failed');
     }

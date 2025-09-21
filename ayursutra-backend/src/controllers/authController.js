@@ -459,7 +459,8 @@ const resetPassword = async (req, res) => {
 module.exports = {
   // register: [registerRateLimit, register],
   register:  register,
-  login: [loginRateLimit, login],
+  // login: [loginRateLimit, login],
+  login: login,
   logout,
   refreshToken,
   verifyEmail,

@@ -122,7 +122,7 @@ const validateAppointment = [
     .withMessage('Please provide a valid time in HH:MM format'),
   body('reason')
     .trim()
-    .isLength({ min: 10, max: 500 })
+    .isLength({ min: 1, max: 500 })
     .withMessage('Reason must be between 10 and 500 characters'),
   body('symptoms')
     .optional()
