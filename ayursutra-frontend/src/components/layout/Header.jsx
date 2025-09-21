@@ -3,6 +3,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { useTheme } from '../../hooks/useTheme';
 import { logoutUser } from '../../store/slices/authSlice';
+import { ROUTES } from '../../constants';
 import {
   Bars3Icon,
   BellIcon,
@@ -12,6 +13,7 @@ import {
   ArrowRightOnRectangleIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
 const Header = ({ onMenuClick, user }) => {
   const dispatch = useAppDispatch();
@@ -56,8 +58,8 @@ const Header = ({ onMenuClick, user }) => {
           </button>
 
           {/* Notifications */}
-          <button
-            type="button"
+          <Link
+            to={ROUTES.NOTIFICATIONS}
             className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 relative"
             aria-label="View notifications"
           >
@@ -67,7 +69,7 @@ const Header = ({ onMenuClick, user }) => {
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
-          </button>
+          </Link>
 
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-gray-700" />
@@ -97,28 +99,28 @@ const Header = ({ onMenuClick, user }) => {
               <Menu.Items className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white dark:bg-gray-800 py-2 shadow-lg ring-1 ring-gray-900/5 dark:ring-gray-700 focus:outline-none">
                 <Menu.Item>
                   {({ active }) => (
-                    <a
-                      href="/profile"
+                    <Link
+                      to="/profile"
                       className={`${
                         active ? 'bg-gray-50 dark:bg-gray-700' : ''
                       } block px-3 py-1 text-sm leading-6 text-gray-900 dark:text-white`}
                     >
                       <UserIcon className="inline h-4 w-4 mr-2" />
                       Profile
-                    </a>
+                    </Link>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <a
-                      href="/settings"
+                    <Link 
+                      to="/settings"
                       className={`${
                         active ? 'bg-gray-50 dark:bg-gray-700' : ''
                       } block px-3 py-1 text-sm leading-6 text-gray-900 dark:text-white`}
                     >
                       <Cog6ToothIcon className="inline h-4 w-4 mr-2" />
                       Settings
-                    </a>
+                    </Link>
                   )}
                 </Menu.Item>
                 <Menu.Item>

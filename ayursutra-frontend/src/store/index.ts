@@ -5,6 +5,7 @@ import notificationReducer from './slices/notificationSlice';
 import appointmentsReducer from './slices/appointmentSlice';
 import patientReducer from './slices/patientSlice';
 import doctorsReducer from './slices/doctorSlice';
+import treatmentReducer from './slices/treatmentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     appointments: appointmentsReducer,
     doctors: doctorsReducer,
     patient: patientReducer,
+    treatment: treatmentReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

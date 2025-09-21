@@ -15,6 +15,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import PatientLayout from './components/layout/PatientLayout';
 import DoctorLayout from './components/layout/DoctorLayout';
 
+
 // Page Components
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
@@ -22,7 +23,7 @@ import RegisterPage from './pages/auth/RegisterPage';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import AppointmentSchedule from './pages/AppointmentSchedule';
-import TherapyHistory from './pages/TherapyHistory';
+import TreatmentHistory from './pages/TreatmentHistory';
 import PatientManagement from './pages/doctor/PatientManagement';
 import ProgressTracking from './pages/patient/ProgressTracking';
 import NotificationsPage from './pages/NotificationsPage';
@@ -156,7 +157,7 @@ function AppContent() {
           <Route path={ROUTES.TREATMENT_HISTORY} element={
             <ProtectedRoute>
               <DashboardLayout>
-                <TherapyHistory />
+                <TreatmentHistory />
               </DashboardLayout>
             </ProtectedRoute>
           } />

@@ -17,8 +17,8 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: ROUTES.DASHBOARD, icon: HomeIcon },
-  { name: 'Schedule Therapy', href: ROUTES.THERAPY_SCHEDULE, icon: CalendarDaysIcon },
-  { name: 'Therapy History', href: ROUTES.THERAPY_HISTORY, icon: ClockIcon },
+  { name: 'Schedule Treatment', href: ROUTES.APPOINTMENT_SCHEDULE, icon: CalendarDaysIcon },
+  { name: 'Treatment History', href: ROUTES.TREATMENT_HISTORY, icon: ClockIcon },
   { name: 'Progress Tracking', href: ROUTES.PROGRESS_TRACKING, icon: ChartBarIcon },
   { name: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: BellIcon },
   { name: 'Profile', href: ROUTES.PROFILE, icon: UserIcon },

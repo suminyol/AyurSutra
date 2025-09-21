@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchProgressData, fetchProgressCharts } from '../../store/slices/patientSlice';
 import { ChartBarIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 
 const ProgressTracking = () => {
   const dispatch = useAppDispatch();
@@ -31,7 +32,7 @@ const ProgressTracking = () => {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="p-3 rounded-md bg-green-100 dark:bg-green-900">
-                  <TrendingUpIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <ArrowTrendingUpIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
               <div className="ml-5 w-0 flex-1">

@@ -104,7 +104,7 @@ const PatientDashboard = () => {
                 Upcoming Treatments
               </h3>
               <Link
-                to={ROUTES.APPOINTMENT_SCHEDULE}
+                to={ROUTES.TREATMENT_HISTORY}
                 className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
               >
                 View all
@@ -119,7 +119,7 @@ const PatientDashboard = () => {
                 </div>
               ) : upcomingAppointments.length > 0 ? (
                 <div className="space-y-3">
-                  // This is the new, corrected code
+
                 {upcomingAppointments.map((appointment) => (
                   <div
                     key={appointment.id}

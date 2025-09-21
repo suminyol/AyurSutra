@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TherapySession, TherapyType, PatientFeedback, TherapyBookingForm } from '../../types';
 import { therapyService } from '../../services/therapyService';
 
-interface TherapyState {
+interface TreatmentState {
   sessions: TherapySession[];
   therapyTypes: TherapyType[];
   currentSession: TherapySession | null;
@@ -18,7 +18,7 @@ interface TherapyState {
   };
 }
 
-const initialState: TherapyState = {
+const initialState: TreatmentState = {
   sessions: [],
   therapyTypes: [],
   currentSession: null,
@@ -28,7 +28,7 @@ const initialState: TherapyState = {
 };
 
 // Async thunks
-export const fetchTherapySessions = createAsyncThunk(
+export const fetchTreatmentSessions = createAsyncThunk(
   'therapy/fetchSessions',
   async (filters?: any, { rejectWithValue }) => {
     try {
@@ -40,7 +40,7 @@ export const fetchTherapySessions = createAsyncThunk(
   }
 );
 
-export const fetchTherapyTypes = createAsyncThunk(
+export const fetchTreatmentTypes = createAsyncThunk(
   'therapy/fetchTypes',
   async (_, { rejectWithValue }) => {
     try {
@@ -52,7 +52,7 @@ export const fetchTherapyTypes = createAsyncThunk(
   }
 );
 
-export const bookTherapySession = createAsyncThunk(
+export const bookTreatmentSession = createAsyncThunk(
   'therapy/bookSession',
   async (bookingData: TherapyBookingForm, { rejectWithValue }) => {
     try {
@@ -64,7 +64,7 @@ export const bookTherapySession = createAsyncThunk(
   }
 );
 
-export const cancelTherapySession = createAsyncThunk(
+export const cancelTreatmentSession = createAsyncThunk(
   'therapy/cancelSession',
   async (sessionId: string, { rejectWithValue }) => {
     try {
@@ -76,7 +76,7 @@ export const cancelTherapySession = createAsyncThunk(
   }
 );
 
-export const rescheduleTherapySession = createAsyncThunk(
+export const rescheduleTreatmentSession = createAsyncThunk(
   'therapy/rescheduleSession',
   async ({ sessionId, newDate, newTime }: { sessionId: string; newDate: string; newTime: string }, { rejectWithValue }) => {
     try {
@@ -88,7 +88,7 @@ export const rescheduleTherapySession = createAsyncThunk(
   }
 );
 
-export const submitFeedback = createAsyncThunk(
+export const submitTreatmentFeedback = createAsyncThunk(
   'therapy/submitFeedback',
   async (feedback: PatientFeedback, { rejectWithValue }) => {
     try {
@@ -100,7 +100,7 @@ export const submitFeedback = createAsyncThunk(
   }
 );
 
-export const fetchSessionById = createAsyncThunk(
+export const fetchTreatmentSessionById = createAsyncThunk(
   'therapy/fetchSessionById',
   async (sessionId: string, { rejectWithValue }) => {
     try {
@@ -112,8 +112,8 @@ export const fetchSessionById = createAsyncThunk(
   }
 );
 
-const therapySlice = createSlice({
-  name: 'therapy',
+const treatmentSlice = createSlice({
+  name: 'treatment',
   initialState,
   reducers: {
     setCurrentSession: (state, action: PayloadAction<TherapySession | null>) => {
@@ -132,39 +132,39 @@ const therapySlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch sessions
-      .addCase(fetchTherapySessions.pending, (state) => {
+      .addCase(fetchTreatmentSessions.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchTherapySessions.fulfilled, (state, action) => {
+      .addCase(fetchTreatmentSessions.fulfilled, (state, action) => {
         state.isLoading = false;
         state.sessions = action.payload;
         state.error = null;
       })
-      .addCase(fetchTherapySessions.rejected, (state, action) => {
+      .addCase(fetchTreatmentSessions.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      // Fetch therapy types
-      .addCase(fetchTherapyTypes.fulfilled, (state, action) => {
+      // Fetch treatment types
+      .addCase(fetchTreatmentTypes.fulfilled, (state, action) => {
         state.therapyTypes = action.payload;
       })
       // Book session
-      .addCase(bookTherapySession.pending, (state) => {
+      .addCase(bookTreatmentSession.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(bookTherapySession.fulfilled, (state, action) => {
+      .addCase(bookTreatmentSession.fulfilled, (state, action) => {
         state.isLoading = false;
         state.sessions.unshift(action.payload);
         state.error = null;
       })
-      .addCase(bookTherapySession.rejected, (state, action) => {
+      .addCase(bookTreatmentSession.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
       // Cancel session
-      .addCase(cancelTherapySession.fulfilled, (state, action) => {
+      .addCase(cancelTreatmentSession.fulfilled, (state, action) => {
         const index = state.sessions.findIndex(session => session.id === action.payload);
         if (index !== -1) {
           state.sessions[index].status = 'cancelled';
@@ -174,7 +174,7 @@ const therapySlice = createSlice({
         }
       })
       // Reschedule session
-      .addCase(rescheduleTherapySession.fulfilled, (state, action) => {
+      .addCase(rescheduleTreatmentSession.fulfilled, (state, action) => {
         const index = state.sessions.findIndex(session => session.id === action.payload.id);
         if (index !== -1) {
           state.sessions[index] = action.payload;
@@ -184,7 +184,7 @@ const therapySlice = createSlice({
         }
       })
       // Submit feedback
-      .addCase(submitFeedback.fulfilled, (state, action) => {
+      .addCase(submitTreatmentFeedback.fulfilled, (state, action) => {
         const sessionIndex = state.sessions.findIndex(session => session.id === action.payload.sessionId);
         if (sessionIndex !== -1) {
           state.sessions[sessionIndex].feedback = action.payload;
@@ -194,11 +194,11 @@ const therapySlice = createSlice({
         }
       })
       // Fetch session by ID
-      .addCase(fetchSessionById.fulfilled, (state, action) => {
+      .addCase(fetchTreatmentSessionById.fulfilled, (state, action) => {
         state.currentSession = action.payload;
       });
   },
 });
 
-export const { setCurrentSession, setFilters, clearFilters, clearError } = therapySlice.actions;
-export default therapySlice.reducer;
+export const { setCurrentSession, setFilters, clearFilters, clearError } = treatmentSlice.actions;
+export default treatmentSlice.reducer;

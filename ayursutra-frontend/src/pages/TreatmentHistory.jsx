@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { fetchTherapySessions } from '../store/slices/therapySlice';
+import { fetchTreatmentSessions } from '../store/slices/treatmentSlice';
 import { ClockIcon, CheckCircleIcon, XCircleIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
-const TherapyHistory = () => {
+const TreatmentHistory = () => {
   const dispatch = useAppDispatch();
-  const { sessions, isLoading } = useAppSelector((state) => state.therapy);
+  const { sessions, isLoading } = useAppSelector((state) => state.treatment);
 
   useEffect(() => {
-    dispatch(fetchTherapySessions());
+    dispatch(fetchTreatmentSessions());
   }, [dispatch]);
 
   const getStatusIcon = (status) => {
@@ -38,9 +38,9 @@ const TherapyHistory = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Therapy History</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Treatment History</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          View all your therapy sessions and their status
+          View all your treatment sessions and their status
         </p>
       </div>
 
@@ -94,9 +94,9 @@ const TherapyHistory = () => {
           ) : (
             <div className="text-center py-8">
               <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No therapy history</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No treatement history</h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Your therapy sessions will appear here once you book them.
+                Your treatment sessions will appear here once you book them.
               </p>
             </div>
           )}
@@ -106,4 +106,4 @@ const TherapyHistory = () => {
   );
 };
 
-export default TherapyHistory;
+export default TreatmentHistory;
