@@ -1,7 +1,19 @@
 import { API_BASE_URL } from '../constants';
-import { Patient, MedicalHistoryEntry } from '../types';
+import { Patient, MedicalHistoryEntry, ProgressData, ProgressChart } from '../types';
 
 class PatientService {
+  getProgressData(patientId: string) {
+    throw new Error('Method not implemented.');
+  }
+  createProgressChart(chartData: Omit<ProgressChart, "id">) {
+    throw new Error('Method not implemented.');
+  }
+  getProgressCharts(patientId: string) {
+    throw new Error('Method not implemented.');
+  }
+  addProgressData(progressData: Omit<ProgressData, "id">) {
+    throw new Error('Method not implemented.');
+  }
   private baseURL = `${API_BASE_URL}/patients`;
 
   private getAuthHeaders(): HeadersInit {

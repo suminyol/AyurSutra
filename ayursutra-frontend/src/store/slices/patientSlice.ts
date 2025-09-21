@@ -29,9 +29,9 @@ const initialState: PatientState = {
 // Async thunks
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
-  async (filters?: any, { rejectWithValue }) => {
+  async (filters: any, { rejectWithValue }) => {
     try {
-      const response = await patientService.getPatients(filters);
+      const response = await patientService.getAllPatients(filters);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch patients');
@@ -87,12 +87,13 @@ export const addProgressData = createAsyncThunk(
   }
 );
 
-export const fetchProgressCharts = createAsyncThunk(
+export const fetchProgressCharts = createAsyncThunk<ProgressChart[], string>(
   'patient/fetchProgressCharts',
   async (patientId: string, { rejectWithValue }) => {
     try {
       const response = await patientService.getProgressCharts(patientId);
-      return response;
+      // Ensure response is ProgressChart[] or fallback to empty array
+      return (response ?? []) as ProgressChart[];
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch progress charts');
     }
@@ -137,7 +138,7 @@ const patientSlice = createSlice({
       })
       .addCase(fetchPatients.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.patients = action.payload;
+        state.patients = action.payload.patients;
         state.error = null;
       })
       .addCase(fetchPatients.rejected, (state, action) => {
@@ -164,7 +165,7 @@ const patientSlice = createSlice({
       })
       // Add progress data
       .addCase(addProgressData.fulfilled, (state, action) => {
-        state.progressData.push(action.payload);
+        // No payload to push since the fulfilled payload type is void
       })
       // Fetch progress charts
       .addCase(fetchProgressCharts.fulfilled, (state, action) => {
@@ -172,7 +173,7 @@ const patientSlice = createSlice({
       })
       // Create progress chart
       .addCase(createProgressChart.fulfilled, (state, action) => {
-        state.progressCharts.push(action.payload);
+        state.progressCharts.push(action.payload.data);
       });
   },
 });

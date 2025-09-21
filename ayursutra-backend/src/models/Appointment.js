@@ -146,23 +146,24 @@ appointmentSchema.index({ status: 1 });
 appointmentSchema.index({ 'payment.status': 1 });
 appointmentSchema.index({ createdAt: -1 });
 
-// Compound index for doctor availability
-appointmentSchema.index({ doctor: 1, date: 1, time: 1 }, { unique: true });
-
 // Pre-save middleware to validate appointment time
 appointmentSchema.pre('save', function(next) {
-  // Check if appointment date is not in the past
-  if (this.date < new Date()) {
-    return next(new Error('Appointment date cannot be in the past'));
+  // Only run these validations for new appointments or if the date is modified.
+  if (this.isNew || this.isModified('date')) {
+    // Check if appointment date is not in the past
+    const today = new Date(); // e.g. 2024-07-21T10:00:00.000-04:00
+    today.setUTCHours(0, 0, 0, 0); // Set to midnight UTC for a fair date-only comparison
+    if (this.date < today) {
+      return next(new Error('Appointment date cannot be in the past'));
+    }
+    
+    // Check if appointment is not more than 3 months in advance
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setUTCMonth(threeMonthsFromNow.getUTCMonth() + 3);
+    if (this.date > threeMonthsFromNow) {
+      return next(new Error('Appointment cannot be scheduled more than 3 months in advance'));
+    }
   }
-  
-  // Check if appointment is not more than 3 months in advance
-  const threeMonthsFromNow = new Date();
-  threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
-  if (this.date > threeMonthsFromNow) {
-    return next(new Error('Appointment cannot be scheduled more than 3 months in advance'));
-  }
-  
   next();
 });
 

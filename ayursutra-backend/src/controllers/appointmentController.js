@@ -8,7 +8,7 @@ const { authenticate, authorize, checkOwnership } = require('../middleware/auth'
 // @access  Private
 const createAppointment = async (req, res) => {
   try {
-    const { doctor, date, time, reason, symptoms, type = 'consultation' } = req.body;
+    const { doctor, date, time, reason, symptoms, type = 'consultation', patient: patientIdFromRequest } = req.body;
 
     const doctorExists = await Doctor.findOne({ _id: doctor, isActive: true });
     if (!doctorExists) {
@@ -18,8 +18,16 @@ const createAppointment = async (req, res) => {
       });
     }
 
-    const patientExists = await Patient.findOne({ user: req.user._id });
-    if (!patientExists) {
+    let patientForAppointment;
+    // If a doctor is booking, they will provide the patient's ID.
+    if (req.user.role === 'doctor' && patientIdFromRequest) {
+      patientForAppointment = await Patient.findById(patientIdFromRequest);
+    } else {
+      // If a patient is booking for themselves.
+      patientForAppointment = await Patient.findOne({ user: req.user._id });
+    }
+
+    if (!patientForAppointment) {
       return res.status(404).json({
         success: false,
         message: 'Patient profile not found'
@@ -45,7 +53,7 @@ const createAppointment = async (req, res) => {
     // We can add a more advanced availability feature back later.
 
     const appointment = await Appointment.create({
-      patient: patientExists._id,
+      patient: patientForAppointment._id,
       doctor: doctorExists._id,
       date: new Date(date),
       time,
@@ -53,11 +61,14 @@ const createAppointment = async (req, res) => {
       symptoms,
       type,
       payment: {
-        amount: doctorExists.consultationFee
+        amount: doctorExists.consultationFee || 0
       }
     });
     
-    await appointment.populate('doctor', 'user');
+    await appointment.populate({ 
+      path: 'doctor', 
+      populate: { path: 'user', select: 'name email phone' } 
+    });
     
     res.status(201).json({
       success: true,
