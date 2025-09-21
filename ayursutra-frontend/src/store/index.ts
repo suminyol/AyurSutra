@@ -2,15 +2,17 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import notificationReducer from './slices/notificationSlice';
-import therapyReducer from './slices/therapySlice';
+import appointmentsReducer from './slices/appointmentSlice';
 import patientReducer from './slices/patientSlice';
+import doctorsReducer from './slices/doctorSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+    auth: authReducer,  
     theme: themeReducer,
     notifications: notificationReducer,
-    therapy: therapyReducer,
+    appointments: appointmentsReducer,
+    doctors: doctorsReducer,
     patient: patientReducer,
   },
   middleware: (getDefaultMiddleware) =>

@@ -6,6 +6,7 @@ import { store } from './store';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { fetchUserProfile } from './store/slices/authSlice';
 import { fetchNotifications } from './store/slices/notificationSlice';
+import { ROUTES } from './constants';
 
 // Layout Components
 import AuthLayout from './components/layout/AuthLayout';
@@ -19,7 +20,7 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
-import TherapySchedule from './pages/TherapySchedule';
+import AppointmentSchedule from './pages/AppointmentSchedule';
 import TherapyHistory from './pages/TherapyHistory';
 import PatientManagement from './pages/doctor/PatientManagement';
 import ProgressTracking from './pages/patient/ProgressTracking';
@@ -107,14 +108,14 @@ function AppContent() {
           } />
 
           {/* Shared Routes */}
-          <Route path="/therapy/schedule" element={
+          <Route path={ROUTES.APPOINTMENT_SCHEDULE} element={
             <ProtectedRoute>
               <DashboardLayout>
-                <TherapySchedule />
+                <AppointmentSchedule />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/therapy/history" element={
+          <Route path={ROUTES.TREATMENT_HISTORY} element={
             <ProtectedRoute>
               <DashboardLayout>
                 <TherapyHistory />

@@ -48,15 +48,15 @@ const patientSchema = new Schema({
   emergencyContact: {
     name: {
       type: String,
-      required: true
+      required: false
     },
     relationship: {
       type: String,
-      required: true
+      required: false
     },
     phone: {
       type: String,
-      required: true
+      required: false
     },
     email: String
   },

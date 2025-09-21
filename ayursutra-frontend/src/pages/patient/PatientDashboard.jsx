@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchTherapySessions } from '../../store/slices/therapySlice';
+import { fetchAppointments } from '../../store/slices/appointmentSlice';
 import { fetchNotifications } from '../../store/slices/notificationSlice';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../constants';
@@ -16,31 +16,31 @@ import {
 const PatientDashboard = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { sessions, isLoading } = useAppSelector((state) => state.therapy);
+  const { appointments, isLoading } = useAppSelector((state) => state.appointments);
   const { notifications, unreadCount } = useAppSelector((state) => state.notifications);
 
   useEffect(() => {
-    dispatch(fetchTherapySessions());
+    dispatch(fetchAppointments());
     dispatch(fetchNotifications());
   }, [dispatch]);
 
-  const upcomingSessions = sessions
-    .filter(session => session.status === 'scheduled')
+  const upcomingAppointments = appointments
+    .filter(appointment => appointment.status === 'scheduled')
     .slice(0, 3);
 
   const recentNotifications = notifications.slice(0, 3);
 
   const stats = [
     {
-      name: 'Upcoming Sessions',
-      value: sessions.filter(s => s.status === 'scheduled').length,
+      name: 'Upcoming Appointments',
+      value: appointments.filter(a => a.status === 'scheduled').length,
       icon: CalendarDaysIcon,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100 dark:bg-blue-900',
     },
     {
-      name: 'Completed Sessions',
-      value: sessions.filter(s => s.status === 'completed').length,
+      name: 'Completed Appointments',
+      value: appointments.filter(a => a.status === 'completed').length,
       icon: ClockIcon,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900',
@@ -63,7 +63,7 @@ const PatientDashboard = () => {
             Welcome back, {user?.name || 'Patient'}!
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Here's an overview of your Panchakarma therapy journey.
+            Here's an overview of your Panchakarma treatment journey.
           </p>
         </div>
       </div>
@@ -101,10 +101,10 @@ const PatientDashboard = () => {
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-                Upcoming Sessions
+                Upcoming Treatments
               </h3>
               <Link
-                to={ROUTES.THERAPY_SCHEDULE}
+                to={ROUTES.APPOINTMENT_SCHEDULE}
                 className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
               >
                 View all
@@ -117,11 +117,11 @@ const PatientDashboard = () => {
                     <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   ))}
                 </div>
-              ) : upcomingSessions.length > 0 ? (
+              ) : upcomingAppointments.length > 0 ? (
                 <div className="space-y-3">
-                  {upcomingSessions.map((session) => (
+                  {upcomingAppointments.map((appointment) => (
                     <div
-                      key={session.id}
+                      key={appointment.id}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                     >
                       <div>
@@ -143,15 +143,15 @@ const PatientDashboard = () => {
                   <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No upcoming sessions</h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Schedule your first therapy session to get started.
+                    Schedule your first treatment session to get started.
                   </p>
                   <div className="mt-6">
                     <Link
-                      to={ROUTES.THERAPY_SCHEDULE}
+                      to={ROUTES.APPOINTMENT_SCHEDULE}
                       className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
-                      Schedule Session
+                      Schedule Appointment
                     </Link>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const PatientDashboard = () => {
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Link
-              to={ROUTES.THERAPY_SCHEDULE}
+              to={ROUTES.APPOINTMENT_SCHEDULE}
               className="relative group bg-white dark:bg-gray-700 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500"
             >
               <div>
@@ -230,10 +230,10 @@ const PatientDashboard = () => {
               </div>
               <div className="mt-4">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Schedule Therapy
+                  Schedule Appointment
                 </h3>
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Book your next Panchakarma session
+                  Book your next Panchakarma appointment
                 </p>
               </div>
               <span
@@ -258,7 +258,7 @@ const PatientDashboard = () => {
                   Track Progress
                 </h3>
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Monitor your therapy progress
+                  Monitor your treatment progress
                 </p>
               </div>
               <span
@@ -270,7 +270,7 @@ const PatientDashboard = () => {
             </Link>
 
             <Link
-              to={ROUTES.THERAPY_HISTORY}
+              to={ROUTES.TREATMENT_HISTORY}
               className="relative group bg-white dark:bg-gray-700 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500"
             >
               <div>
@@ -283,7 +283,7 @@ const PatientDashboard = () => {
                   View History
                 </h3>
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Check your therapy history
+                  Check your treatement history
                 </p>
               </div>
               <span
