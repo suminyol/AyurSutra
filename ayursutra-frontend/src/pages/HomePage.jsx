@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import snehan from "../assets/snehan.png";
 import svedana from "../assets/svedana.png";
+import tridosha from "../assets/tridosha.png";
 
 import { useTheme } from '../hooks/useTheme';
 import { ROUTES } from '../constants';
@@ -262,32 +263,14 @@ const purvakarmaSteps = [
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
               Ayurvedic Tridosha
+              <img src={tridosha} alt="Ayurvedic Tridosha" className="py-6 w-1200 h-1200 ml-2" />
             </h2>
             <p className="mt-6 text-xl leading-8 text-slate-600 dark:text-slate-300">
               Understanding the three fundamental energies that govern our physiology and psychology
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-12 sm:space-x-12">
-            {doshaElements.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-full border-4 border-slate-200 dark:border-slate-700 flex items-center justify-center mb-4 mx-auto bg-white dark:bg-slate-800 shadow-lg">
-                    {/* --- CHANGE 2: Replaced placeholder with actual icon --- */}
-                    <item.icon className={`w-12 h-12 ${item.color}`} aria-hidden="true" />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${item.color} mb-2`}>{item.dosha}</h3>
-                  <div className="space-y-1">
-                    {item.elements.map((element, idx) => (
-                      <div key={idx} className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                        {element}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </div>
 
