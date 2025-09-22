@@ -4,9 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { registerUser } from '../../store/slices/authSlice';
 import { ROUTES } from '../../constants';
-import { EyeIcon, EyeSlashIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import LeafIcon from '../../components/icons/LeafIcon';
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +20,6 @@ const RegisterPage = () => {
     handleSubmit,
     watch,
     formState: { errors },
-    reset,
   } = useForm({
     defaultValues: {
       name: '',
@@ -61,28 +59,11 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col justify-center items-center py-8 sm:px-6 lg:px-8">
+    // Added overflow-y-hidden to prevent vertical scrolling
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col justify-center items-center py-8 sm:px-6 lg:px-8 overflow-y-hidden">
       <div className="w-full sm:max-w-2xl mx-auto">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
-              <LeafIcon className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              AyurSutra
-            </span>
-          </Link>
-        </div>
-
         {/* Welcome Section */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 mb-4">
-            <SparklesIcon className="w-4 h-4 text-emerald-600 mr-2" />
-            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              Join AyurSutra
-            </span>
-          </div>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Create your account
           </h2>
@@ -407,7 +388,7 @@ const RegisterPage = () => {
           </div>
         </div>
 
-         {/* Bottom Text */}
+        {/* Bottom Text */}
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Traditional Ayurvedic wisdom meets modern healthcare technology

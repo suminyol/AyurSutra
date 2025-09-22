@@ -8,27 +8,19 @@ const DashboardLayout = ({ children }) => {
   const { user } = useAppSelector((state) => state.auth);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex">
-
-      {/* Main area */}
-      <div className="flex flex-col flex-1">
-        {/* Header - remove any margin or padding above */}
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          user={user}
-        />
-        <div className="flex flex-1 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         user={user}
       />
+      {/* Header */}
+      <Header onMenuClick={() => setSidebarOpen(true)} user={user} />
+      {/* Main content area */}
+      <div className="lg:pl-64 pt-16">
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
-        </div>
+        <main>{children}</main>
       </div>
     </div>
   );

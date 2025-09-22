@@ -18,17 +18,12 @@ const ProgressTracking = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
           {/* Header Section */}
           <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 mb-3">
-                <SparklesIcon className="w-4 h-4 text-emerald-600 mr-2" />
-                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                  Progress Tracking
-                </span>
-              </div>
+              
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Progress Tracking</h1>
               <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
                 Monitor your therapy progress and recovery milestones
