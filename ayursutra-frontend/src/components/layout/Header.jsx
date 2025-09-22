@@ -3,6 +3,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { useTheme } from '../../hooks/useTheme';
 import { logoutUser } from '../../store/slices/authSlice';
+import LeafIcon from '../icons/LeafIcon';
 import { ROUTES } from '../../constants';
 import {
   Bars3Icon,
@@ -41,7 +42,7 @@ const Header = ({ onMenuClick, user }) => {
       <div className="flex items-center">
         <Link to="/" className="flex items-center space-x-2">
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-            <HeartIcon className="w-6 h-6 text-white" />
+           <LeafIcon className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">AyurSutra</span>
         </Link>

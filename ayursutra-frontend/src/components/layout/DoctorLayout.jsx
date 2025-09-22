@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants';
+import LeafIcon from '../icons/LeafIcon';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -33,7 +34,7 @@ const DoctorLayout = ({ children }) => {
           <div className="flex items-center flex-shrink-0 px-4">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg flex items-center justify-center shadow-lg">
-                <HeartIcon className="w-5 h-5 text-white" />
+               <LeafIcon className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">AyurSutra</span>
             </Link>

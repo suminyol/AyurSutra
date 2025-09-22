@@ -6,6 +6,7 @@ import { registerUser } from '../../store/slices/authSlice';
 import { ROUTES } from '../../constants';
 import { EyeIcon, EyeSlashIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import LeafIcon from '../../components/icons/LeafIcon';
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -66,7 +67,7 @@ const RegisterPage = () => {
         <div className="flex justify-center mb-6">
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
-              <HeartIcon className="w-6 h-6 text-white" />
+              <LeafIcon className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               AyurSutra
