@@ -65,69 +65,30 @@ const getAllPatients = async (req, res) => {
 // @access  Private/Doctor/Admin
 const getPatientsByDoctor = async (req, res) => {
   try {
-    const doctorId = req.params.doctorId;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    // 1. Find the Doctor profile for the currently logged-in user
+    const Doctor = require('../models/Doctor').default;
+    const doctor = await Doctor.findOne({ user: req.user._id });
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor profile not found for this user.' });
+    }
 
-    // Find all appointments for this doctor to get patient IDs
+    // 2. Find all appointments for THIS doctor to get their unique patient IDs
     const Appointment = require('../models/Appointment').default;
-    const appointments = await Appointment.find({ doctor: doctorId }).distinct('patient');
+    const patientIds = await Appointment.find({ doctor: doctor._id }).distinct('patient');
 
-    if (appointments.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          patients: [],
-          pagination: {
-            current: page,
-            pages: 0,
-            total: 0
-          }
-        }
-      });
+    if (patientIds.length === 0) {
+      return res.json({ success: true, data: { patients: [] } });
     }
 
-    const query = { _id: { $in: appointments } };
+    // 3. Find all patient profiles that match those IDs
+    const patients = await Patient.find({ _id: { $in: patientIds } })
+      .populate('user', 'name email phone');
 
-    // Add search functionality
-    if (req.query.search) {
-      const users = await User.find({
-        $or: [
-          { name: { $regex: req.query.search, $options: 'i' } },
-          { email: { $regex: req.query.search, $options: 'i' } }
-        ]
-      }).select('_id');
-      
-      query.user = { $in: users.map(u => u._id) };
-      query._id = { $in: appointments }; // Keep the doctor filter
-    }
+    res.json({ success: true, data: { patients } });
 
-    const patients = await Patient.find(query)
-      .populate('user', 'name email phone dateOfBirth gender')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Patient.countDocuments(query);
-
-    res.json({
-      success: true,
-      data: {
-        patients,
-        pagination: {
-          current: page,
-          pages: Math.ceil(total / limit),
-          total
-        }
-      }
-    });
   } catch (error) {
     console.error('Get patients by doctor error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch doctor patients'
-    });
+    res.status(500).json({ message: 'Failed to fetch doctor patients' });
   }
 };
 

@@ -41,10 +41,10 @@ export const fetchPatients = createAsyncThunk(
 
 export const fetchPatientsByDoctor = createAsyncThunk(
   'patient/fetchPatientsByDoctor',
-  async (doctorId: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => { // No longer accepts a doctorId
     try {
-      const response = await patientService.getPatientsByDoctor(doctorId);
-      return response;
+      const response = await patientService.getPatientsByDoctor(); // No longer passes a doctorId
+      return response.patients;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch doctor patients');
     }

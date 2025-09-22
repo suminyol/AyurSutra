@@ -79,19 +79,18 @@ class PatientService {
   }
 
   
-async getPatientsByDoctor(doctorId: string): Promise<{ patients: Patient[]; pagination?: any }> {
+async getPatientsByDoctor(): Promise<{ patients: Patient[] }> {
   try {
-    const response = await fetch(`${this.baseURL}/doctor/${doctorId}`, {
+    // Calls the new, simpler URL and sends no ID
+    const response = await fetch(`${this.baseURL}/doctor/my-patients`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       throw new Error(data.message || 'Failed to fetch doctor patients');
     }
-
     return data.data;
   } catch (error) {
     console.error('Get patients by doctor error:', error);

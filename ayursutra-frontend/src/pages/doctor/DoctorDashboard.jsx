@@ -24,7 +24,7 @@ const DoctorDashboard = () => {
   const { notifications, unreadCount } = useAppSelector((state) => state.notifications);
 
   useEffect(() => {
-    dispatch(fetchPatientsByDoctor(user.id));
+    dispatch(fetchPatientsByDoctor()); // No ID needed!
     dispatch(fetchAppointments());
     dispatch(fetchNotifications());
   }, [dispatch]);
