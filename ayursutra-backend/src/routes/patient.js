@@ -11,6 +11,7 @@ router.use(authenticate);
 router.get('/', authorize('doctor', 'admin'), validatePagination, patientController.getAllPatients);
 router.get('/:id', validateObjectId('id'), patientController.getPatientById);
 router.put('/:id', validateObjectId('id'), patientController.updatePatient);
+router.get('/doctor/:doctorId', authorize('doctor', 'admin'), validateObjectId('doctorId'), patientController.getPatientsByDoctor);
 router.get('/:id/medical-history', validateObjectId('id'), patientController.getMedicalHistory);
 router.post('/:id/medical-history', validateObjectId('id'), patientController.addMedicalHistory);
 router.get('/:id/treatments', validateObjectId('id'), patientController.getPatientTreatments);

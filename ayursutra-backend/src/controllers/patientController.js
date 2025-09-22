@@ -58,6 +58,79 @@ const getAllPatients = async (req, res) => {
   }
 };
 
+// Add this method to your patientController.js
+
+// @desc    Get patients by doctor (patients who have appointments with this doctor)
+// @route   GET /api/patients/doctor/:doctorId
+// @access  Private/Doctor/Admin
+const getPatientsByDoctor = async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Find all appointments for this doctor to get patient IDs
+    const Appointment = require('../models/Appointment').default;
+    const appointments = await Appointment.find({ doctor: doctorId }).distinct('patient');
+
+    if (appointments.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          patients: [],
+          pagination: {
+            current: page,
+            pages: 0,
+            total: 0
+          }
+        }
+      });
+    }
+
+    const query = { _id: { $in: appointments } };
+
+    // Add search functionality
+    if (req.query.search) {
+      const users = await User.find({
+        $or: [
+          { name: { $regex: req.query.search, $options: 'i' } },
+          { email: { $regex: req.query.search, $options: 'i' } }
+        ]
+      }).select('_id');
+      
+      query.user = { $in: users.map(u => u._id) };
+      query._id = { $in: appointments }; // Keep the doctor filter
+    }
+
+    const patients = await Patient.find(query)
+      .populate('user', 'name email phone dateOfBirth gender')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Patient.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        patients,
+        pagination: {
+          current: page,
+          pages: Math.ceil(total / limit),
+          total
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get patients by doctor error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch doctor patients'
+    });
+  }
+};
+
 // @desc    Get patient by ID
 // @route   GET /api/patients/:id
 // @access  Private
@@ -244,5 +317,6 @@ module.exports = {
   getMedicalHistory,
   addMedicalHistory,
   getPatientTreatments,
-  getPatientAppointments
+  getPatientAppointments,
+  getPatientsByDoctor
 };

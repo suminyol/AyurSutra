@@ -1,44 +1,50 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
-import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { SunIcon, MoonIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 const AuthLayout = ({ children }) => {
   const { toggle, isDark } = useTheme();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-wellness-50 dark:from-gray-900 dark:to-gray-800 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col justify-center py-8 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">A</span>
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-3 group">
+          <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
+            <HeartIcon className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">AyurSutra</span>
+          <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            AyurSutra
+          </span>
         </Link>
         
+        {/* Theme Toggle */}
         <button
           onClick={toggle}
-          className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow"
+          className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all duration-200 border border-slate-200 dark:border-slate-700"
           aria-label="Toggle theme"
         >
           {isDark ? (
             <SunIcon className="w-5 h-5 text-yellow-500" />
           ) : (
-            <MoonIcon className="w-5 h-5 text-gray-600" />
+            <MoonIcon className="w-5 h-5 text-slate-600" />
           )}
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-lg sm:px-10">
-          {children}
+      {/* Main Content - Centered */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md sm:max-w-2xl">
+          <div className="bg-white dark:bg-slate-800 py-8 px-8 sm:px-10 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
+            {children}
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-center pb-8">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           © 2024 AyurSutra. All rights reserved.
         </p>
       </div>

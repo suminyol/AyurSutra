@@ -5,6 +5,7 @@ class PatientService {
   getProgressData(patientId: string) {
     throw new Error('Method not implemented.');
   }
+  
   createProgressChart(chartData: Omit<ProgressChart, "id">) {
     throw new Error('Method not implemented.');
   }
@@ -76,6 +77,27 @@ class PatientService {
       throw error;
     }
   }
+
+  
+async getPatientsByDoctor(doctorId: string): Promise<{ patients: Patient[]; pagination?: any }> {
+  try {
+    const response = await fetch(`${this.baseURL}/doctor/${doctorId}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch doctor patients');
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error('Get patients by doctor error:', error);
+    throw error;
+  }
+}
 
   async updatePatient(id: string, updateData: Partial<Patient>): Promise<Patient> {
     try {

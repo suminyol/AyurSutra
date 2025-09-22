@@ -39,6 +39,19 @@ export const fetchPatients = createAsyncThunk(
   }
 );
 
+export const fetchPatientsByDoctor = createAsyncThunk(
+  'patient/fetchPatientsByDoctor',
+  async (doctorId: string, { rejectWithValue }) => {
+    try {
+      const response = await patientService.getPatientsByDoctor(doctorId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch doctor patients');
+    }
+  }
+);
+
+
 export const fetchPatientById = createAsyncThunk(
   'patient/fetchPatientById',
   async (patientId: string, { rejectWithValue }) => {
@@ -131,6 +144,21 @@ const patientSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+       // Fetch patients by doctor
+      .addCase(fetchPatientsByDoctor.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPatientsByDoctor.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.patients = action.payload.patients || action.payload; // Handle both response formats
+        state.error = null;
+      })
+      .addCase(fetchPatientsByDoctor.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
       // Fetch patients
       .addCase(fetchPatients.pending, (state) => {
         state.isLoading = true;

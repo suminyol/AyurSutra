@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useAppDispatch } from '../../hooks/redux';
 import { registerUser } from '../../store/slices/authSlice';
 import toast from 'react-hot-toast';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
 const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
@@ -51,15 +51,22 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl m-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">
-            Add New Patient
-          </h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-200" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl m-4 max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg flex items-center justify-center shadow-lg">
+              <UserPlusIcon className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white" id="modal-title">
+              Add New Patient
+            </h3>
+          </div>
           <button
             type="button"
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm p-2 transition-all duration-200"
             onClick={onClose}
           >
             <XMarkIcon className="w-5 h-5" />
@@ -67,25 +74,30 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Name */}
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div className="p-6 space-y-5">
+            
+            {/* Name & Email Row */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full name</label>
+                <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Full name *
+                </label>
                 <input
                   {...register('name', { required: 'Name is required' })}
                   type="text"
                   id="name"
-                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
                   placeholder="Enter patient's full name"
                 />
-                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+                {errors.name && <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>}
               </div>
 
-              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
+                <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Email address *
+                </label>
                 <input
                   {...register('email', {
                     required: 'Email is required',
@@ -96,16 +108,18 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
                   })}
                   type="email"
                   id="email"
-                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
                   placeholder="Enter patient's email"
                 />
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+                {errors.email && <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Temporary Password</label>
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Temporary Password *
+              </label>
               <input
                 {...register('password', {
                   required: 'Password is required',
@@ -113,45 +127,54 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
                 })}
                 type="password"
                 id="password"
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
                 placeholder="Create a temporary password"
               />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">The patient can change this later.</p>
+              {errors.password && <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
+              <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <p className="text-sm text-emerald-700 dark:text-emerald-400">
+                  💡 The patient can change this password after their first login.
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Phone */}
+            {/* Phone & Date of Birth Row */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone number</label>
+                <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Phone number
+                </label>
                 <input
                   {...register('phone')}
                   type="tel"
                   id="phone"
-                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
                   placeholder="Enter patient's phone number"
                 />
               </div>
 
-              {/* Date of Birth */}
               <div>
-                <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of birth</label>
+                <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Date of birth
+                </label>
                 <input
                   {...register('dateOfBirth')}
                   type="date"
                   id="dateOfBirth"
-                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
                 />
               </div>
             </div>
             
             {/* Gender */}
             <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
+              <label htmlFor="gender" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Gender
+              </label>
               <select
                 {...register('gender')}
                 id="gender"
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 sm:text-sm px-4 py-2.5 transition-all duration-200"
               >
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -160,28 +183,40 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
               </select>
             </div>
 
+            {/* Error Message */}
             {apiError && (
-              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+              <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
                 <p className="text-sm text-red-800 dark:text-red-200">{apiError}</p>
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-end p-4 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+              className="px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-auto bg-primary-600 text-white py-2.5 px-5 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center"
+              className="group relative px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              {isLoading ? 'Adding Patient...' : 'Add Patient'}
+              {isLoading ? (
+                <div className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Adding Patient...
+                </div>
+              ) : (
+                'Add Patient'
+              )}
             </button>
           </div>
         </form>

@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchPatients } from '../../store/slices/patientSlice';
-import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { fetchPatientsByDoctor } from '../../store/slices/patientSlice';
+import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import AddPatientModal from '../doctor/AddPatientModal';
 
 const PatientManagement = () => {
   const dispatch = useAppDispatch();
-  // === NOTE: Make sure you are selecting from the correct slice, e.g., state.patients ===
   const { patients, isLoading } = useAppSelector((state) => state.patient); 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddPatientModalOpen, setAddPatientModalOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPatients());
+    dispatch(fetchPatientsByDoctor());
   }, [dispatch]);
 
-  // === UPDATED: Corrected filtering logic with optional chaining ===
   const filteredPatients = patients.filter(patient => {
     const patientName = (patient?.user?.name ?? '').toLowerCase();
     const patientEmail = (patient?.user?.email ?? '').toLowerCase();
@@ -24,109 +22,127 @@ const PatientManagement = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Patient Management</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Manage your patients and their therapy records
-          </p>
-        </div>
-        <button
-          onClick={() => setAddPatientModalOpen(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
-        >
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Patient
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Header Section */}
+          <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 mb-3">
+                    <SparklesIcon className="w-4 h-4 text-emerald-600 mr-2" />
+                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                      Patient Management
+                    </span>
+                  </div>
+                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Patient Management</h1>
+                  <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+                    Manage your patients and their therapy records
+                  </p>
+                </div>
+                <button
+                  onClick={() => setAddPatientModalOpen(  true)}
+                  className="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:shadow-xl"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" />
+                  Add Patient
+                </button>
+              </div>
+            </div>
+          </div>
 
-      {/* Search */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-        <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search patients by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-primary-500 focus:border-primary-500"
+          {/* Search */}
+          <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div className="p-6">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search patients by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Patients List */}
+          <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Patients ({filteredPatients.length})
+              </h2>
+            </div>
+            <div className="p-6">
+              {isLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-20 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                  ))}
+                </div>
+              ) : filteredPatients.length > 0 ? (
+                <div className="space-y-4">
+                  {filteredPatients.map((patient) => (
+                    <div
+                      key={patient.id}
+                      className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer border border-slate-200 dark:border-slate-600 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-200 hover:shadow-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <UserGroupIcon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {patient.user?.name}
+                          </h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {patient.user?.email}
+                          </p>
+                          {patient.phone && (
+                            <p className="text-xs text-slate-400 dark:text-slate-500">
+                              {patient.phone}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                          Joined {new Date(patient.createdAt).toLocaleDateString()}
+                        </p>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <UserGroupIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No patients found</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    {searchTerm ? 'No patients match your search criteria.' : 'Start by adding your first patient.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Add Patient Modal */}
+          <AddPatientModal
+            isOpen={isAddPatientModalOpen}
+            onClose={() => setAddPatientModalOpen(false)}
+            onPatientAdded={() => {
+              setAddPatientModalOpen(false);
+              dispatch(fetchPatientsByDoctor(user.id)); // Refresh the patient list after adding a new patient
+            }}
           />
         </div>
       </div>
-
-      {/* Patients List */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-            Patients ({filteredPatients.length})
-          </h2>
-        </div>
-        <div className="p-6">
-          {isLoading ? (
-            <div className="animate-pulse space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              ))}
-            </div>
-          ) : filteredPatients.length > 0 ? (
-            <div className="space-y-4">
-              {filteredPatients.map((patient) => (
-                <div
-                  key={patient.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                      <UserGroupIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                    </div>
-                    <div>
-                      {/* === UPDATED: Corrected display logic === */}
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                        {patient.user?.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {patient.user?.email}
-                      </p>
-                      {patient.phone && (
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {patient.phone}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Joined {new Date(patient.createdAt).toLocaleDateString()}
-                    </p>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No patients found</h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {searchTerm ? 'No patients match your search criteria.' : 'Start by adding your first patient.'}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Add Patient Modal */}
-      <AddPatientModal
-        isOpen={isAddPatientModalOpen}
-        onClose={() => setAddPatientModalOpen(false)}
-        onPatientAdded={() => {
-          setAddPatientModalOpen(false);
-          dispatch(fetchPatients());
-        }}
-      />
     </div>
   );
 };
