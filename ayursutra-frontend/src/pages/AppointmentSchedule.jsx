@@ -6,6 +6,17 @@ import { fetchPatients } from '../store/slices/patientSlice';
 import { CalendarDaysIcon, ClockIcon, UserIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
+const getInitialDate = () => {
+  const now = new Date();
+  // If current time is 5 PM (17:00) or later, default to tomorrow
+  if (now.getHours() >= 17) {
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  }
+  return now.toISOString().split('T')[0];
+};
+
 const AppointmentSchedule = () => {
   const dispatch = useAppDispatch();
   
@@ -18,7 +29,7 @@ const AppointmentSchedule = () => {
   // Form state
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [selectedPatient, setSelectedPatient] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(getInitialDate());
   const [selectedTime, setSelectedTime] = useState('');
   const [appointmentType, setAppointmentType] = useState('consultation');
   const [reason, setReason] = useState('');
@@ -82,6 +93,38 @@ const AppointmentSchedule = () => {
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00',
   ];
+
+  const getAvailableTimeSlots = () => {
+    // Get slots already booked for the selected doctor on the selected date
+    const bookedSlots = appointments
+      .filter(
+        (appointment) =>
+          appointment.doctor?.id === selectedDoctor &&
+          new Date(appointment.date).toISOString().split('T')[0] === selectedDate &&
+          (appointment.status === 'scheduled' || appointment.status === 'confirmed')
+      )
+      .map((appointment) => appointment.time);
+
+    // Filter out the booked slots from the master list
+    let availableSlots = timeSlots.filter(slot => !bookedSlots.includes(slot));
+
+    const today = new Date();
+    const isSelectedDateToday = new Date(selectedDate).toDateString() === today.toDateString();
+
+    if (!isSelectedDateToday) {
+      return availableSlots; // For future dates, just show non-booked slots
+    }
+
+    // For today, also filter out past time slots
+    const currentHour = today.getHours();
+    const currentMinute = today.getMinutes();
+
+    return availableSlots.filter(time => {
+      const [slotHour, slotMinute] = time.split(':').map(Number);
+      if (slotHour > currentHour) return true;
+      return slotHour === currentHour && slotMinute > currentMinute;
+    });
+  };
 
   const upcomingAppointments = appointments
     .filter(appointment => appointment.status === 'scheduled')
@@ -197,8 +240,8 @@ const AppointmentSchedule = () => {
                           required
                         >
                           <option value="">Select time</option>
-                          {timeSlots.map((time) => (
-                            <option key={time} value={time}>{time}</option>
+                          {getAvailableTimeSlots().map((time) => (
+                            <option key={time} value={time}>{time} </option>
                           ))}
                         </select>
                       </div>
