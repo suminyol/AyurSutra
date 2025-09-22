@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import snehan from "../assets/snehan.png";
+import LeafIcon from '../components/icons/LeafIcon'; // Assuming you create this file
 import svedana from "../assets/svedana.png";
 import tridosha from "../assets/tridosha.png";
 
 import { useTheme } from '../hooks/useTheme';
 import { ROUTES } from '../constants';
 import {
-  HeartIcon,
   SunIcon,
   MoonIcon,
   ArrowRightIcon,
@@ -154,7 +154,7 @@ const purvakarmaSteps = [
           <div className="flex lg:flex-1">
             <Link to="/" className="-m-1.5 p-1.5 flex items-center space-x-2">
               <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <HeartIcon className="w-6 h-6 text-white" />
+                <LeafIcon className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">AyurSutra</span>
             </Link>
@@ -191,8 +191,8 @@ const purvakarmaSteps = [
 
       {/* Hero section */}
       <div className="relative isolate px-6 pt-24 lg:px-8">
-        {/* --- CHANGE 1: Reduced vertical padding here --- */}
-        <div className="mx-auto max-w-4xl py-16 sm:py-24 lg:py-32">
+        {/* --- CHANGE: Reduced vertical padding --- */}
+        <div className="mx-auto max-w-4xl py-12 sm:py-16 lg:py-20">
           <div className="text-center">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 mb-8">
               <SparklesIcon className="w-4 h-4 text-emerald-600 mr-2" />
@@ -226,8 +226,8 @@ const purvakarmaSteps = [
       </div>
 
       {/* Panchakarma Introduction */}
-      {/* --- CHANGE 4: Reduced padding --- */}
-      <div className="py-16 sm:py-20 bg-slate-50 dark:bg-slate-800/50">
+      {/* --- CHANGE: Reduced vertical padding --- */}
+      <div className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-800/50">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
@@ -257,8 +257,8 @@ const purvakarmaSteps = [
       </div>
 
       {/* Ayurvedic Tridosha */}
-      {/* --- CHANGE 4: Reduced padding --- */}
-      <div className="py-16 sm:py-20">
+      {/* --- CHANGE: Reduced vertical padding --- */}
+      <div className="py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
@@ -275,8 +275,8 @@ const purvakarmaSteps = [
       </div>
 
       {/* Purvakarma Section */}
-   
-    <div className="py-16 sm:py-20 bg-slate-50 dark:bg-slate-800/50">
+      {/* --- CHANGE: Reduced vertical padding --- */}
+    <div className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-800/50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16">
           <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
@@ -312,8 +312,8 @@ const purvakarmaSteps = [
     </div>
 
       {/* Features section */}
-      {/* --- CHANGE 4: Reduced padding --- */}
-      <div className="py-16 sm:py-20">
+      {/* --- CHANGE: Reduced vertical padding --- */}
+      <div className="py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-3xl lg:text-center mb-16">
             <h2 className="text-base font-semibold leading-7 text-emerald-600 uppercase tracking-wide">Everything you need</h2>
@@ -345,8 +345,8 @@ const purvakarmaSteps = [
       </div>
 
       {/* Therapy types section */}
-      {/* --- CHANGE 4: Reduced padding --- */}
-      <div className="bg-slate-50 dark:bg-slate-800/50 py-16 sm:py-20">
+      {/* --- CHANGE: Reduced vertical padding --- */}
+      <div className="bg-slate-50 dark:bg-slate-800/50 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-3xl lg:text-center mb-16">
             <h2 className="text-base font-semibold leading-7 text-emerald-600 uppercase tracking-wide">Therapy Types</h2>
@@ -360,7 +360,6 @@ const purvakarmaSteps = [
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-2">
             {therapyTypes.map((therapy) => (
               <div key={therapy.name} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
-                {/* --- CHANGE 3: Added icon and updated layout --- */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-x-4">
                     <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -389,9 +388,9 @@ const purvakarmaSteps = [
       </div>
 
       {/* CTA section */}
-      {/* --- CHANGE 4: Reduced padding --- */}
+      {/* --- CHANGE: Reduced vertical padding --- */}
       <div className="bg-emerald-600">
-        <div className="px-6 py-20 sm:px-6 sm:py-24 lg:px-8">
+        <div className="px-6 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
               Ready to transform your practice?
@@ -418,8 +417,9 @@ const purvakarmaSteps = [
       </div>
 
       {/* Footer */}
+      {/* --- CHANGE: Reduced vertical padding --- */}
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:flex md:items-center md:justify-between lg:px-8">
+        <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
           <div className="flex justify-center space-x-6 md:order-2">
             <p className="text-sm leading-5 text-slate-500 dark:text-slate-400">
               &copy; 2024 AyurSutra. All rights reserved. | Traditional Ayurvedic wisdom meets modern healthcare technology.
@@ -428,7 +428,7 @@ const purvakarmaSteps = [
           <div className="mt-8 md:order-1 md:mt-0">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <HeartIcon className="w-6 h-6 text-white" />
+                <LeafIcon className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">AyurSutra</span>
             </div>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
+import LeafIcon from '../icons/LeafIcon';
 import { SunIcon, MoonIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 const AuthLayout = ({ children }) => {
@@ -12,7 +13,7 @@ const AuthLayout = ({ children }) => {
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
           <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
-            <HeartIcon className="w-5 h-5 text-white" />
+           <LeafIcon className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             AyurSutra
