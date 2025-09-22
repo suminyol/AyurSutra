@@ -1,6 +1,7 @@
 const Appointment = require('../models/Appointment').default;
 const Doctor = require('../models/Doctor').default;
 const Patient = require('../models/Patient').default;
+const Notification = require('../models/Notification').default;
 const { authenticate, authorize, checkOwnership } = require('../middleware/auth');
 
 // @desc    Create new appointment
@@ -10,7 +11,7 @@ const createAppointment = async (req, res) => {
   try {
     const { doctor, date, time, reason, symptoms, type = 'consultation', patient: patientIdFromRequest } = req.body;
 
-    const doctorExists = await Doctor.findOne({ _id: doctor, isActive: true });
+    const doctorExists = await Doctor.findOne({ _id: doctor, isActive: true }).populate('user', 'name');
     if (!doctorExists) {
       return res.status(404).json({
         success: false,
@@ -21,10 +22,10 @@ const createAppointment = async (req, res) => {
     let patientForAppointment;
     // If a doctor is booking, they will provide the patient's ID.
     if (req.user.role === 'doctor' && patientIdFromRequest) {
-      patientForAppointment = await Patient.findById(patientIdFromRequest);
+      patientForAppointment = await Patient.findById(patientIdFromRequest).populate('user', 'name');
     } else {
       // If a patient is booking for themselves.
-      patientForAppointment = await Patient.findOne({ user: req.user._id });
+      patientForAppointment = await Patient.findOne({ user: req.user._id }).populate('user', 'name');
     }
 
     if (!patientForAppointment) {
@@ -64,6 +65,27 @@ const createAppointment = async (req, res) => {
         amount: doctorExists.consultationFee || 0
       }
     });
+
+    // Create a notification for the doctor
+    await Notification.create({
+      user: doctorExists.user,
+      title: 'New Appointment Booked',
+      message: `A new appointment has been booked by ${patientForAppointment.user.name} on ${new Date(date).toLocaleDateString()} at ${time}.`,
+      type: 'new_appointment',
+      priority: 'medium',
+      link: `/doctor/appointments/${appointment._id}` // Example link
+    });
+    console.log('Notification sent successfully to doctor');
+
+    // Create a notification for the patient
+    await Notification.create({
+      user: patientForAppointment.user._id,
+      title: 'Appointment Confirmed',
+      message: `Your appointment with Dr. ${doctorExists.user.name} on ${new Date(date).toLocaleDateString()} at ${time} has been successfully booked.`,
+      type: 'appointment_confirmation',
+      priority: 'medium',
+      link: `/patient/appointments/${appointment._id}` // Example link
+    });
     
     await appointment.populate({ 
       path: 'doctor', 
@@ -88,9 +110,6 @@ const createAppointment = async (req, res) => {
 // @access  Private
 const getAppointments = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
 
     let query = {};
 
@@ -130,22 +149,11 @@ const getAppointments = async (req, res) => {
         { path: 'patient', populate: { path: 'user', select: 'name email phone' } },
         { path: 'doctor', populate: { path: 'user', select: 'name email phone' } }
       ])
-      .sort({ date: -1, time: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Appointment.countDocuments(query);
+      .sort({ date: -1, time: -1 });
 
     res.json({
       success: true,
-      data: {
-        appointments,
-        pagination: {
-          current: page,
-          pages: Math.ceil(total / limit),
-          total
-        }
-      }
+      data: { appointments }
     });
   } catch (error) {
     console.error('Get appointments error:', error);

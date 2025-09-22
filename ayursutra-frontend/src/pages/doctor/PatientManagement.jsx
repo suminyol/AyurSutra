@@ -22,9 +22,7 @@ const PatientManagement = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-8">
+    <div className="space-y-8">
           {/* Header Section */}
           <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
@@ -136,9 +134,7 @@ const PatientManagement = () => {
               dispatch(fetchPatientsByDoctor(user.id)); // Refresh the patient list after adding a new patient
             }}
           />
-        </div>
-      </div>
-    </div>
+    </div>  
   );
 };
 

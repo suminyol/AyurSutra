@@ -11,6 +11,7 @@ const notificationSchema = new Schema({
     enum: [
       'appointment_reminder',
       'appointment_confirmation',
+      'new_appointment',
       'appointment_cancelled',
       'appointment_rescheduled',
       'treatment_reminder',
@@ -32,6 +33,10 @@ const notificationSchema = new Schema({
     type: String,
     required: [true, 'Notification message is required'],
     maxlength: [500, 'Message cannot exceed 500 characters']
+  },
+  link: {
+    type: String,
+    maxlength: [200, 'Link cannot exceed 200 characters']
   },
   data: {
     type: Schema.Types.Mixed,
