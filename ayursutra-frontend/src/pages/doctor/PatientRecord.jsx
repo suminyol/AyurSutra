@@ -126,6 +126,37 @@ const PatientRecord = () => {
         }
     };
 
+    const formatDataForAI = (data) => {
+      let reportString = "Ayurvedic Patient Assessment Report:\n\n";
+
+      Object.entries(FORM_SECTIONS).forEach(([sectionTitle, fields]) => {
+        reportString += `--- ${sectionTitle} ---\n`;
+        Object.entries(fields).forEach(([key, config]) => {
+          if (config.type === 'select') {
+            if (data[key]) {
+              reportString += `${config.label}: ${data[key]}\n`;
+            }
+          } else if (config.type === 'checkbox') {
+            const selectedSymptoms = Object.entries(data[key] || {})
+              .filter(([, isChecked]) => isChecked)
+              .map(([symptomKey]) => {
+                // Find the original symptom name with correct casing and symbols
+                return config.options.find(opt => opt.replace(/[\/\s-]/g, '') === symptomKey);
+              })
+              .filter(Boolean); // Filter out any undefined if no match is found
+
+            if (selectedSymptoms.length > 0) {
+              reportString += `${config.label}: ${selectedSymptoms.join(', ')}\n`;
+              reportString += `Severity: ${data[config.severity]}\n`;
+            }
+          }
+        });
+        reportString += "\n";
+      });
+
+      return reportString;
+    };
+
     const handleSave = async () => {
         const promise = dispatch(savePatientExamination({ patientId, examinationData: formData })).unwrap();
         toast.promise(promise, {
@@ -135,13 +166,24 @@ const PatientRecord = () => {
         });
     };
     
+    // --- REPLACE your existing handleGenerateSolution function with this one ---
     const handleGenerateSolution = async () => {
         if (progress < 100) {
             toast.error('Please complete the entire form before generating a solution.');
             return;
         }
         await handleSave();
-        const promise = dispatch(generateAiSolution({ patientId, examinationData: formData })).unwrap();
+        
+        // 1. Format the data into a string
+        const formattedDataString = formatDataForAI(formData);
+
+        // Optional: Log the string to the console to verify its format before sending
+        console.log("Formatted Data String for AI Model:\n", formattedDataString);
+
+        // 2. Dispatch the Redux action with the formatted string
+        // Note: You will need to update your `generateAiSolution` thunk to handle this `formDataString`.
+        const promise = dispatch(generateAiSolution({ patientId, formDataString: formattedDataString })).unwrap();
+        
         toast.promise(promise, {
             loading: 'Analyzing data and generating AI solution...',
             success: (result) => `AI solution generated successfully!`,
