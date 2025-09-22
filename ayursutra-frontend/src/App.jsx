@@ -29,6 +29,7 @@ import ProgressTracking from './pages/patient/ProgressTracking';
 import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import PatientRecord from './pages/doctor/PatientRecord';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -138,6 +139,13 @@ function AppContent() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+           <Route path="/patient/:patientId" element={
+          <ProtectedRoute requiredRole="doctor">
+              <DashboardLayout>
+                  <PatientRecord />
+              </DashboardLayout>
+          </ProtectedRoute>
+      } />
           <Route path="/doctor/patients" element={
             <ProtectedRoute requiredRole="doctor">
               <DashboardLayout>
