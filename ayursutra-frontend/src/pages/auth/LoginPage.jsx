@@ -33,27 +33,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen/2 bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col justify-center items-center py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen/2 bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col justify-center items-center overflow-y-hidden py-2 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-lg">
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
-              <LeafIcon className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              AyurSutra
-            </span>
-          </Link>
-        </div>
+        
 
         {/* Welcome Section */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 mb-4">
-            <SparklesIcon className="w-4 h-4 text-emerald-600 mr-2" />
-            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              Welcome Back
-            </span>
+        <div className="text-center py-2 mb-6">
+          <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-900/20  dark:border-emerald-800 mb-4">
+            
           </div>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Sign in to your account
@@ -65,7 +53,7 @@ const LoginPage = () => {
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-lg">
-        <div className="bg-white dark:bg-slate-800 py-8 px-10 shadow-2xl sm:rounded-2xl border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 py-4 px-10 shadow-2xl sm:rounded-2xl border border-slate-200 dark:border-slate-700">
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             {/* Email Field */}
             <div>
