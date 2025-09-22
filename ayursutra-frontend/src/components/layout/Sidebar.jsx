@@ -27,8 +27,6 @@ const navigation = [
 const doctorNavigation = [
   { name: 'Dashboard', href: ROUTES.DOCTOR_DASHBOARD, icon: HomeIcon },
   { name: 'Patient Management', href: ROUTES.PATIENT_MANAGEMENT, icon: UserGroupIcon },
-  { name: 'Schedule Therapy', href: ROUTES.APPOINTMENT_SCHEDULE, icon: CalendarDaysIcon },
-  { name: 'Therapy History', href: ROUTES.TREATMENT_HISTORY, icon: ClockIcon },
   { name: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: BellIcon },
   { name: 'Profile', href: ROUTES.PROFILE, icon: UserIcon },
   { name: 'Settings', href: ROUTES.SETTINGS, icon: Cog6ToothIcon },
