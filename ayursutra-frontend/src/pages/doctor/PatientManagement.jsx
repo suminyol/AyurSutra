@@ -133,7 +133,7 @@ const PatientManagement = () => {
             onClose={() => setAddPatientModalOpen(false)}
             onPatientAdded={() => {
               setAddPatientModalOpen(false);
-              dispatch(fetchPatientsByDoctor(user.id)); // Refresh the patient list after adding a new patient
+              dispatch(fetchPatientsByDoctor()); // Refresh the patient list after adding a new patient
             }}
           />
         </div>

@@ -51,6 +51,18 @@ export const fetchPatientsByDoctor = createAsyncThunk(
   }
 );
 
+export const addPatientByDoctor = createAsyncThunk(
+  'patient/addPatientByDoctor',
+  async (patientData: any, { rejectWithValue }) => {
+    try {
+      const newPatient = await patientService.addPatientByDoctor(patientData);
+      return newPatient;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to add patient');
+    }
+  }
+);
+
 
 export const fetchPatientById = createAsyncThunk(
   'patient/fetchPatientById',
@@ -155,6 +167,19 @@ const patientSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPatientsByDoctor.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(addPatientByDoctor.pending, (state) => {
+      state.isLoading = true;
+      })
+      .addCase(addPatientByDoctor.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Add the new patient to the list without replacing the whole list
+        state.patients.unshift(action.payload);
+      })
+      .addCase(addPatientByDoctor.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

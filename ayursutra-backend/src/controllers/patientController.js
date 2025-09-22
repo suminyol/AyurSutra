@@ -92,6 +92,73 @@ const getPatientsByDoctor = async (req, res) => {
   }
 };
 
+// @desc    A doctor adds a new patient or links an existing one
+// @route   POST /api/patients/add-by-doctor
+// @access  Private/Doctor
+
+const addOrLinkPatient = async (req, res) => {
+  try {
+    const { name, email, password, phone, dateOfBirth, gender } = req.body;
+    
+    const Doctor = require('../models/Doctor').default;
+    const doctor = await Doctor.findOne({ user: req.user._id });
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor profile not found.' });
+    }
+
+    let patientUser;
+    let patientProfile;
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      if (existingUser.role !== 'patient') {
+        return res.status(400).json({ message: 'This email is associated with a non-patient account.' });
+      }
+      patientUser = existingUser;
+      patientProfile = await Patient.findOne({ user: patientUser._id });
+      if (!patientProfile) {
+        return res.status(404).json({ message: 'An account with this email exists, but their patient profile is missing.' });
+      }
+      // toast.success('Existing patient found.'); // <-- REMOVED THIS LINE
+    } else {
+      patientUser = await User.create({
+        name, email, password, phone, dateOfBirth, gender, role: 'patient'
+      });
+      patientProfile = await Patient.create({ user: patientUser._id });
+      // toast.success('New patient created successfully.'); // <-- REMOVED THIS LINE
+    }
+
+    const Appointment = require('../models/Appointment').default;
+    const existingLink = await Appointment.findOne({ doctor: doctor._id, patient: patientProfile._id });
+
+    if (!existingLink) {
+      await Appointment.create({
+        doctor: doctor._id,
+        patient: patientProfile._id,
+        date: new Date(),
+        time: 'N/A',
+        reason: 'Initial Consultation added by Doctor ' + req.user.name,
+        type: 'consultation',
+        status: 'completed',
+        payment: { amount: 0, status: 'paid' }
+      });
+    }
+
+    await patientProfile.populate('user', 'name email phone');
+
+    res.status(201).json({
+      success: true,
+      message: 'Patient successfully linked to your profile.',
+      data: { patient: patientProfile }
+    });
+
+  } catch (error) {
+    console.error('Add or Link Patient Error:', error);
+    res.status(500).json({ message: 'An error occurred while adding the patient.' });
+  }
+};
+
 // @desc    Get patient by ID
 // @route   GET /api/patients/:id
 // @access  Private
@@ -272,6 +339,7 @@ const getPatientAppointments = async (req, res) => {
 };
 
 module.exports = {
+  addOrLinkPatient,
   getAllPatients,
   getPatientById,
   updatePatient,
