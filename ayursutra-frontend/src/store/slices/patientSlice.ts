@@ -26,7 +26,7 @@ const initialState: PatientState = {
   filters: {},
 };
 
-// Async thunks
+// --- EXISTING ASYNC THUNKS ---
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
   async (filters: any, { rejectWithValue }) => {
@@ -41,12 +41,24 @@ export const fetchPatients = createAsyncThunk(
 
 export const fetchPatientsByDoctor = createAsyncThunk(
   'patient/fetchPatientsByDoctor',
-  async (_, { rejectWithValue }) => { // No longer accepts a doctorId
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await patientService.getPatientsByDoctor(); // No longer passes a doctorId
+      const response = await patientService.getPatientsByDoctor();
       return response.patients;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch doctor patients');
+    }
+  }
+);
+
+export const addPatientByDoctor = createAsyncThunk(
+  'patient/addPatientByDoctor',
+  async (patientData: any, { rejectWithValue }) => {
+    try {
+      const newPatient = await patientService.addPatientByDoctor(patientData);
+      return newPatient;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to add patient');
     }
   }
 );
@@ -76,6 +88,32 @@ export const updatePatient = createAsyncThunk(
   }
 );
 
+// --- NEW ASYNC THUNKS FOR EXAMINATION AND AI ---
+export const savePatientExamination = createAsyncThunk(
+  'patient/saveExamination',
+  async ({ patientId, examinationData }: { patientId: string; examinationData: any }, { rejectWithValue }) => {
+    try {
+      const response = await patientService.saveExamination(patientId, examinationData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to save examination data');
+    }
+  }
+);
+
+export const generateAiSolution = createAsyncThunk(
+  'patient/generateAiSolution',
+  async ({ patientId, examinationData }: { patientId: string; examinationData: any }, { rejectWithValue }) => {
+    try {
+      const response = await patientService.generateSolution({ patientId, formData: examinationData });
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to generate AI solution');
+    }
+  }
+);
+
+// --- EXISTING ASYNC THUNKS FOR PROGRESS TRACKING ---
 export const fetchProgressData = createAsyncThunk(
   'patient/fetchProgressData',
   async (patientId: string, { rejectWithValue }) => {
@@ -105,7 +143,6 @@ export const fetchProgressCharts = createAsyncThunk<ProgressChart[], string>(
   async (patientId: string, { rejectWithValue }) => {
     try {
       const response = await patientService.getProgressCharts(patientId);
-      // Ensure response is ProgressChart[] or fallback to empty array
       return (response ?? []) as ProgressChart[];
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch progress charts');
@@ -144,17 +181,30 @@ const patientSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-       // Fetch patients by doctor
+      // Fetch patients by doctor
       .addCase(fetchPatientsByDoctor.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchPatientsByDoctor.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.patients = action.payload.patients || action.payload; // Handle both response formats
+        state.patients = action.payload.patients || action.payload;
         state.error = null;
       })
       .addCase(fetchPatientsByDoctor.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(addPatientByDoctor.pending, (state) => {
+      state.isLoading = true;
+      })
+      .addCase(addPatientByDoctor.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Add the new patient to the list without replacing the whole list
+        state.patients.unshift(action.payload);
+      })
+      .addCase(addPatientByDoctor.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
@@ -187,13 +237,39 @@ const patientSlice = createSlice({
           state.currentPatient = action.payload;
         }
       })
+      // --- NEW: Cases for saving examination data ---
+      .addCase(savePatientExamination.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(savePatientExamination.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.currentPatient && state.currentPatient.id === action.payload.patientId) {
+          state.currentPatient.examinationData = action.payload.examinationData;
+        }
+      })
+      .addCase(savePatientExamination.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // --- NEW: Cases for AI solution generation ---
+      .addCase(generateAiSolution.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(generateAiSolution.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Optionally handle the AI response, e.g., storing it on the patient object
+      })
+      .addCase(generateAiSolution.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
       // Fetch progress data
       .addCase(fetchProgressData.fulfilled, (state, action) => {
         state.progressData = action.payload;
       })
       // Add progress data
       .addCase(addProgressData.fulfilled, (state, action) => {
-        // No payload to push since the fulfilled payload type is void
+        // No direct state mutation needed if list is re-fetched after adding
       })
       // Fetch progress charts
       .addCase(fetchProgressCharts.fulfilled, (state, action) => {
@@ -208,3 +284,4 @@ const patientSlice = createSlice({
 
 export const { setCurrentPatient, setFilters, clearFilters, clearError } = patientSlice.actions;
 export default patientSlice.reducer;
+

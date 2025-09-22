@@ -98,6 +98,24 @@ async getPatientsByDoctor(): Promise<{ patients: Patient[] }> {
   }
 }
 
+async addPatientByDoctor(patientData: any): Promise<Patient> {
+  try {
+    const response = await fetch(`${this.baseURL}/add-by-doctor`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(patientData),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to add patient');
+    }
+    return data.data.patient;
+  } catch (error) {
+    console.error('Add patient by doctor error:', error);
+    throw error;
+  }
+}
+
   async updatePatient(id: string, updateData: Partial<Patient>): Promise<Patient> {
     try {
       const response = await fetch(`${this.baseURL}/${id}`, {

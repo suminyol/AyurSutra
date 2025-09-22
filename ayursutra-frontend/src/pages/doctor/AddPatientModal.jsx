@@ -4,8 +4,9 @@ import { registerUser } from '../../store/slices/authSlice';
 import toast from 'react-hot-toast';
 import { XMarkIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import { addPatientByDoctor } from '../../store/slices/patientSlice';
 
-const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
+const AddPatientModal = ({ isOpen, onClose, onPatientAdded}) => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
@@ -26,27 +27,30 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded }) => {
     },
   });
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    setApiError(null);
-    const patientData = {
-      ...data,
-      role: 'patient',
-    };
-
-    try {
-      await dispatch(registerUser(patientData)).unwrap();
-      toast.success('Patient added successfully!');
-      reset();
-      onPatientAdded();
-    } catch (error) {
-      const errorMessage = error || 'Failed to add patient. Please try again.';
-      setApiError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+const onSubmit = async (data) => {
+  setIsLoading(true);
+  setApiError(null);
+  const patientData = {
+    ...data,
+    role: 'patient',
   };
+
+  try {
+    await dispatch(addPatientByDoctor(patientData)).unwrap();
+    toast.success('Patient added successfully!');
+    reset();
+    onPatientAdded();
+  } catch (error) {
+    // THE FIX: We now specifically use error.message to get the string.
+    const errorMessage = error.message || 'Failed to add patient. Please try again.';
+    setApiError(errorMessage);
+  
+    // We also show the specific message in the toast.
+    toast.error(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   if (!isOpen) return null;
 
