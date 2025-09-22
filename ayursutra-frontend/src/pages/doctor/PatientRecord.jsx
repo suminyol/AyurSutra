@@ -177,8 +177,19 @@ const PatientRecord = () => {
         // 1. Format the data into a string
         const formattedDataString = formatDataForAI(formData);
 
-        // Optional: Log the string to the console to verify its format before sending
-        console.log("Formatted Data String for AI Model:\n", formattedDataString);
+        // ai intergation
+        
+        const sendMessage = async () => {
+            const res = await fetch("http://localhost:8000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: input }),
+            });
+
+            const data = await res.json();
+            //use data.schedule
+        };
+        
 
         // 2. Dispatch the Redux action with the formatted string
         // Note: You will need to update your `generateAiSolution` thunk to handle this `formDataString`.

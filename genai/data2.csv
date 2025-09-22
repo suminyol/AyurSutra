@@ -1,0 +1,80 @@
+Dosha Type,Category,Symptoms/Disorders,Severity Level,Body System Affected,Mental/Emotional Impact,Physical Manifestations,Seasonal Tendency,Age Group Most Affected
+Vata,Nervous System,"Anxiety, Panic Attacks, Restlessness, Nervousness",Moderate-High,Central Nervous System,"Fear, worry, feeling ungrounded, racing mind","Tremors, twitching, palpitations, fidgeting",Autumn/Winter,40+ years
+Vata,Nervous System,"Insomnia, Light Interrupted Sleep, Difficulty Falling Asleep",Moderate,Nervous System,"Mental fatigue, concentration issues","Restless sleep, early waking",Autumn/Winter,All ages
+Vata,Nervous System,"Memory Loss, Forgetfulness, Lack of Focus",Moderate,Central Nervous System,"Scattered thinking, difficulty concentrating","Mental fog, absent-mindedness",Autumn/Winter,Elderly
+Vata,Nervous System,"Neurological Disorders, Paralysis, Hemiplegia",High,Central/Peripheral Nervous,"Depression, helplessness","Muscle weakness, loss of movement",Autumn/Winter,Elderly
+Vata,Digestive,"Constipation, Irregular Bowel Movements, Hard Dry Stools",Moderate,Digestive System,Worry about elimination,"Bloating, gas, abdominal pain",Autumn/Winter,All ages
+Vata,Digestive,"Bloating, Gas, Abdominal Distension",Mild-Moderate,Digestive System,"Discomfort, anxiety","Visible abdominal swelling, pain",Autumn/Winter,All ages
+Vata,Digestive,"Irregular Appetite, Weight Loss, Difficulty Gaining Weight",Moderate,Digestive System,"Food anxiety, poor relationship with food","Visible weight loss, weakness",Autumn/Winter,Young adults
+Vata,Digestive,IBS (Irritable Bowel Syndrome),Moderate-High,Digestive System,"Stress around eating, food fears",Alternating constipation/diarrhea,Autumn/Winter,20-40 years
+Vata,Musculoskeletal,"Joint Pain, Arthritis, Stiffness",Moderate-High,Joints/Bones,"Frustration, limited mobility fears","Joint cracking, stiffness, pain",Autumn/Winter,40+ years
+Vata,Musculoskeletal,"Back Pain, Sciatica, Muscle Spasms",Moderate-High,Spine/Muscles,Pain-related anxiety,"Sharp, shooting pains, spasms",Autumn/Winter,30+ years
+Vata,Musculoskeletal,"Osteoporosis, Bone Weakness",High,Skeletal System,"Fear of fractures, dependency","Bone density loss, fractures",Autumn/Winter,Post-menopausal women
+Vata,Circulatory,"Poor Circulation, Cold Hands/Feet",Mild-Moderate,Circulatory System,"Discomfort, isolation","Cold extremities, numbness",Autumn/Winter,All ages
+Vata,Circulatory,"Heart Palpitations, Irregular Heartbeat",Moderate,Cardiovascular,"Anxiety, panic","Racing heart, irregular rhythm",Autumn/Winter,Adults
+Vata,Circulatory,Hypertension (Vata type),Moderate-High,Cardiovascular,"Stress, worry",Variable blood pressure,Autumn/Winter,40+ years
+Vata,Respiratory,"Asthma, Breathlessness, Dry Cough",Moderate-High,Respiratory System,"Fear of suffocation, panic","Wheezing, dry cough, breathlessness",Autumn/Winter,All ages
+Vata,Respiratory,"Hiccups, Voice Hoarseness",Mild,Respiratory System,Communication difficulties,"Voice changes, hiccups",Autumn/Winter,All ages
+Vata,Skin/External,"Dry Skin, Cracked Skin, Eczema",Moderate,Integumentary System,Self-consciousness about appearance,"Rough, dry, cracked skin",Autumn/Winter,All ages
+Vata,Skin/External,"Hair Loss, Brittle Hair, Premature Graying",Moderate,Hair/Scalp,"Low self-esteem, aging fears","Thinning hair, brittleness",Autumn/Winter,30+ years
+Vata,Skin/External,"Nail Problems, Brittle Nails",Mild,Nails,Minor cosmetic concerns,"Brittle, ridged nails",Autumn/Winter,All ages
+Vata,Urogenital,"Urinary Issues, Frequent Urination",Moderate,Urinary System,"Inconvenience, social anxiety","Frequent urge, incomplete emptying",Autumn/Winter,Adults
+Vata,Urogenital,"Menstrual Irregularities, Scanty Periods",Moderate,Reproductive System,"Fertility concerns, hormonal anxiety","Irregular cycles, pain",Autumn/Winter,Reproductive age women
+Vata,Urogenital,"Infertility, Low Libido",Moderate-High,Reproductive System,"Relationship stress, inadequacy",Decreased sexual function,Autumn/Winter,Adults
+Vata,Sensory,"Tinnitus, Hearing Problems",Moderate,Auditory System,Communication difficulties,"Ringing in ears, hearing loss",Autumn/Winter,40+ years
+Vata,Sensory,"Dry Eyes, Vision Problems",Moderate,Visual System,Vision-related anxiety,"Dry, gritty eyes, blurred vision",Autumn/Winter,40+ years
+Pitta,Digestive,"Hyperacidity, Heartburn, GERD, Acid Reflux",Moderate-High,Digestive System,"Irritability when hungry, food anger","Burning sensation, acid taste",Summer,30-50 years
+Pitta,Digestive,"Peptic Ulcers, Gastritis, Stomach Inflammation",High,Digestive System,"Stress, perfectionism","Stomach pain, burning, nausea",Summer,30-50 years
+Pitta,Digestive,"Diarrhea, Loose Stools, IBS (Pitta type)",Moderate,Digestive System,"Urgency anxiety, embarrassment","Frequent loose, burning stools",Summer,Adults
+Pitta,Digestive,"Liver Disorders, Jaundice, Hepatitis",High,Hepatic System,"Anger, frustration","Yellowing, liver tenderness",Summer,Adults
+Pitta,Digestive,"Gallstones, Bile Disorders",High,Biliary System,Pain-related anger,"Sharp pain, nausea",Summer,40+ years
+Pitta,Skin,"Acne, Pimples, Skin Inflammation",Moderate,Integumentary System,"Self-esteem issues, anger","Red, inflamed pustules",Summer,Teenagers/Young adults
+Pitta,Skin,"Eczema, Dermatitis, Skin Rashes",Moderate-High,Integumentary System,"Irritability, embarrassment","Red, inflamed, itchy patches",Summer,All ages
+Pitta,Skin,"Psoriasis, Chronic Skin Conditions",High,Integumentary System,"Depression, social withdrawal","Scaly, inflamed patches",Summer,Adults
+Pitta,Skin,"Urticaria, Hives, Allergic Reactions",Moderate,Integumentary System,Anxiety about triggers,"Raised, itchy welts",Summer,All ages
+Pitta,Skin,"Excessive Sweating, Body Odor",Mild-Moderate,Integumentary System,Social embarrassment,"Profuse sweating, strong odor",Summer,Adults
+Pitta,Skin,"Sunburn, Heat Sensitivity",Moderate,Integumentary System,Avoidance behaviors,"Red, painful skin",Summer,All ages
+Pitta,Inflammatory,"Arthritis (Inflammatory type), Joint Inflammation",High,Joints,"Anger, frustration with limitations","Red, hot, swollen joints",Summer,40+ years
+Pitta,Inflammatory,"Any 'itis' Conditions - Gastritis, Colitis, etc.",Moderate-High,Various Systems,General irritability,"Inflammation, pain, redness",Summer,Adults
+Pitta,Inflammatory,Autoimmune Disorders,High,Immune System,"Self-attack, inner conflict",Variable inflammatory symptoms,Summer,Adults
+Pitta,Inflammatory,"Fever, Infections, Sepsis",High,Immune System,"Delirium, agitation","High temperature, systemic illness",Summer,All ages
+Pitta,Cardiovascular,"Hypertension (Pitta type), High Blood Pressure",High,Cardiovascular,"Anger, Type A personality","Consistent high BP, headaches",Summer,40+ years
+Pitta,Cardiovascular,"Heart Disease, Cardiac Inflammation",High,Cardiovascular,"Intense drive, work stress","Chest pain, palpitations",Summer,Middle-aged men
+Pitta,Cardiovascular,"Bleeding Disorders, Easy Bruising",Moderate-High,Circulatory System,Fear of bleeding,"Easy bruising, nosebleeds",Summer,All ages
+Pitta,Mental,"Anger, Irritability, Short Temper",Moderate,Nervous System,"Frequent anger outbursts, impatience","Flushed face, tense muscles",Summer,Adults
+Pitta,Mental,"Jealousy, Criticism, Competitiveness",Moderate,Mental/Emotional,Relationship conflicts,"Critical behavior, arguments",Summer,Adults
+Pitta,Mental,"Workaholism, Perfectionism, Burnout",Moderate-High,Mental/Emotional,"Stress, inability to relax","Exhaustion, cynicism",Summer,Working adults
+Pitta,Mental,"Migraine Headaches, Burning Headaches",High,Neurological,Pain-related irritability,"Intense, burning head pain",Summer,Adults
+Pitta,Endocrine,"Hyperthyroidism, Overactive Metabolism",High,Endocrine System,"Hyperactivity, anxiety","Weight loss, tremors, heat",Summer,20-40 years
+Pitta,Endocrine,"Excessive Hunger, Unquenchable Thirst",Moderate,Metabolic,"Food obsession, eating anxiety",Constant hunger/thirst,Summer,All ages
+Pitta,Endocrine,"Hot Flashes, Night Sweats",Moderate,Endocrine/Reproductive,"Sleep disruption, mood changes","Sudden heat episodes, sweating",Summer,Menopausal women
+Pitta,Sensory,"Eye Problems, Burning Eyes, Conjunctivitis",Moderate,Visual System,"Vision fears, light sensitivity","Red, burning, sensitive eyes",Summer,Adults
+Pitta,Sensory,"Photophobia, Light Sensitivity",Moderate,Visual System,Avoidance of bright spaces,Pain in bright light,Summer,All ages
+Pitta,Urogenital,"UTI, Burning Urination, Kidney Stones",Moderate-High,Urinary System,"Pain, urgency anxiety","Burning sensation, frequent urination",Summer,Adults
+Pitta,Urogenital,"Heavy Menstrual Bleeding, Clotty Cycles",Moderate,Reproductive System,"Hormonal anger, PMS","Heavy, painful periods",Summer,Reproductive women
+Kapha,Respiratory,"Asthma, Chronic Cough, Bronchitis",Moderate-High,Respiratory System,Fear of breathlessness,"Thick mucus, wheezing, congestion",Spring/Winter,Children/Adults
+Kapha,Respiratory,"Sinus Congestion, Chronic Sinusitis",Moderate,Respiratory System,Breathing discomfort,"Thick nasal discharge, pressure",Spring/Winter,All ages
+Kapha,Respiratory,"Allergies, Hay Fever, Seasonal Allergies",Moderate,Respiratory/Immune,Seasonal anxiety,"Runny nose, sneezing, itchy eyes",Spring,All ages
+Kapha,Respiratory,"Excess Mucus Production, Phlegm",Moderate,Respiratory System,Discomfort with secretions,"Thick, white/clear mucus",Spring/Winter,All ages
+Kapha,Metabolic,"Obesity, Weight Gain, Difficulty Losing Weight",Moderate-High,Metabolic System,"Low self-esteem, depression","Excessive weight, slow metabolism",Spring/Winter,Adults
+Kapha,Metabolic,"Diabetes Type 2, Insulin Resistance",High,Endocrine System,"Health anxiety, dietary stress","High blood sugar, fatigue",Spring/Winter,40+ years
+Kapha,Metabolic,"High Cholesterol, Lipid Disorders",High,Cardiovascular,Heart disease fears,Elevated cholesterol levels,Spring/Winter,Adults
+Kapha,Metabolic,"Slow Metabolism, Sluggish Digestion",Moderate,Digestive/Metabolic,Frustration with body,"Weight gain, bloating, fatigue",Spring/Winter,All ages
+Kapha,Mental,"Depression, Melancholy, Sadness",Moderate-High,Mental/Emotional,"Persistent low mood, hopelessness","Low energy, social withdrawal",Spring/Winter,Adults
+Kapha,Mental,"Lethargy, Fatigue, Excessive Sleep",Moderate,Mental/Physical,"Lack of motivation, apathy","Constant tiredness, oversleeping",Spring/Winter,All ages
+Kapha,Mental,"Lack of Motivation, Procrastination",Moderate,Mental/Emotional,"Self-criticism, guilt","Avoidance, delayed action",Spring/Winter,Adults
+Kapha,Mental,"Attachment, Possessiveness, Greed",Moderate,Mental/Emotional,Relationship conflicts,"Clingy behavior, hoarding",Spring/Winter,Adults
+Kapha,Mental,"Stubbornness, Resistance to Change",Moderate,Mental/Emotional,Anxiety about change,"Rigid thinking, inflexibility",Spring/Winter,Adults
+Kapha,Circulatory,"Edema, Water Retention, Swelling",Moderate,Circulatory/Lymphatic,Body image concerns,"Visible swelling, puffiness",Spring/Winter,Adults
+Kapha,Circulatory,"Poor Circulation, Varicose Veins",Moderate,Circulatory System,Cosmetic concerns,"Visible veins, leg discomfort",Spring/Winter,Adults
+Kapha,Circulatory,Lymphatic Congestion,Moderate,Lymphatic System,General discomfort,"Swollen lymph nodes, sluggishness",Spring/Winter,Adults
+Kapha,Digestive,"Slow Digestion, Poor Appetite",Moderate,Digestive System,Relationship with food,"Feeling full quickly, bloating",Spring/Winter,All ages
+Kapha,Digestive,"Nausea, Heavy Feeling After Eating",Moderate,Digestive System,Food aversion,Post-meal discomfort,Spring/Winter,All ages
+Kapha,Digestive,"Excessive Salivation, Sweet Taste in Mouth",Mild,Digestive System,Minor discomfort,Excessive saliva production,Spring/Winter,All ages
+Kapha,Musculoskeletal,"Joint Stiffness, Heavy Feeling in Joints",Moderate,Musculoskeletal,Mobility fears,"Stiff, heavy joints",Spring/Winter,Adults
+Kapha,Musculoskeletal,"Muscle Weakness, Lack of Strength",Moderate,Musculoskeletal,Physical inadequacy,Reduced muscle tone,Spring/Winter,Adults
+Kapha,Skin,"Oily Skin, Cystic Acne",Moderate,Integumentary System,Self-esteem issues,"Greasy skin, large pimples",Spring/Winter,Teenagers/Young adults
+Kapha,Skin,"Pale, Cool, Clammy Skin",Mild,Integumentary System,Appearance concerns,"Pallor, cool temperature",Spring/Winter,All ages
+Kapha,Sensory,"Excessive Ear Wax, Hearing Issues",Mild,Auditory System,Hearing concerns,"Wax buildup, muffled hearing",Spring/Winter,All ages
+Kapha,Other,"Hypothyroidism, Underactive Metabolism",High,Endocrine System,"Energy concerns, weight issues","Fatigue, weight gain, cold",Spring/Winter,Adults
+Kapha,Other,"Glaucoma, Eye Pressure",High,Visual System,Vision loss fears,Increased eye pressure,Spring/Winter,Elderly
