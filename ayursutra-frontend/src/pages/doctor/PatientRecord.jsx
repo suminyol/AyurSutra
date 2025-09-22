@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchPatientById, savePatientExamination, generateAiSolution, setCurrentPatient } from '../../store/slices/patientSlice';
+import { fetchPatientById, savePatientExamination, setCurrentPatient, setCurrentTreatmentPlan } from '../../store/slices/patientSlice';
 import toast from 'react-hot-toast';
 import { SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
@@ -78,9 +78,21 @@ const PatientRecord = () => {
         if (currentPatient?.examinationData) {
             setFormData(prev => ({ ...getInitialFormData(), ...currentPatient.examinationData }));
         } else {
-            setFormData(getInitialFormData());
+            // Try to load saved data from localStorage
+            const savedData = localStorage.getItem(`patient_examination_${patientId}`);
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    setFormData(prev => ({ ...getInitialFormData(), ...parsed.formData }));
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                    setFormData(getInitialFormData());
+                }
+            } else {
+                setFormData(getInitialFormData());
+            }
         }
-    }, [currentPatient]);
+    }, [currentPatient, patientId]);
     
     // --- MODIFIED: Rewritten progress logic for accuracy and stability ---
     const totalFieldCount = useMemo(() => {
@@ -158,12 +170,19 @@ const PatientRecord = () => {
     };
 
     const handleSave = async () => {
-        const promise = dispatch(savePatientExamination({ patientId, examinationData: formData })).unwrap();
-        toast.promise(promise, {
-            loading: 'Saving record...',
-            success: 'Patient record saved successfully!',
-            error: 'Failed to save record.',
-        });
+        try {
+            // Save data locally to localStorage as backup
+            const patientData = {
+                patientId,
+                formData,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(`patient_examination_${patientId}`, JSON.stringify(patientData));
+            
+            toast.success('Patient record saved locally!');
+        } catch (error) {
+            toast.error('Failed to save record locally.');
+        }
     };
     
     // --- REPLACE your existing handleGenerateSolution function with this one ---
@@ -172,32 +191,33 @@ const PatientRecord = () => {
             toast.error('Please complete the entire form before generating a solution.');
             return;
         }
-        await handleSave();
         
         // 1. Format the data into a string
         const formattedDataString = formatDataForAI(formData);
 
-        // ai intergation
-        
+        // ai integration - using only the sendMessage function
         const sendMessage = async () => {
             const res = await fetch("http://localhost:8000/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: input }),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: formattedDataString }),
             });
 
-            const data = await res.json();
+            const currentTreatmentPlan = await res.json();
             //use data.schedule
+            dispatch(setCurrentTreatmentPlan(currentTreatmentPlan));
+            return currentTreatmentPlan;
         };
         
-
-        // 2. Dispatch the Redux action with the formatted string
-        // Note: You will need to update your `generateAiSolution` thunk to handle this `formDataString`.
-        const promise = dispatch(generateAiSolution({ patientId, formDataString: formattedDataString })).unwrap();
+        // Use toast.promise with the sendMessage function directly
+        const promise = sendMessage();
         
         toast.promise(promise, {
             loading: 'Analyzing data and generating AI solution...',
-            success: (result) => `AI solution generated successfully!`,
+            success: (result) => {
+                navigate(`/patient/${patientId}/treatment-plan`);
+                return `AI solution generated successfully!`;
+            },
             error: 'Failed to generate AI solution.',
         });
     };

@@ -5,6 +5,7 @@ import { patientService } from '../../services/patientService';
 interface PatientState {
   patients: Patient[];
   currentPatient: Patient | null;
+  currentTreatmentPlan: any | null;
   progressData: ProgressData[];
   progressCharts: ProgressChart[];
   isLoading: boolean;
@@ -19,6 +20,7 @@ interface PatientState {
 const initialState: PatientState = {
   patients: [],
   currentPatient: null,
+  currentTreatmentPlan: null,
   progressData: [],
   progressCharts: [],
   isLoading: false,
@@ -169,6 +171,9 @@ const patientSlice = createSlice({
     setCurrentPatient: (state, action: PayloadAction<Patient | null>) => {
       state.currentPatient = action.payload;
     },
+    setCurrentTreatmentPlan: (state, action: PayloadAction<any | null>) => {
+      state.currentTreatmentPlan = action.payload;
+    },
     setFilters: (state, action: PayloadAction<any>) => {
       state.filters = { ...state.filters, ...action.payload };
     },
@@ -188,7 +193,7 @@ const patientSlice = createSlice({
       })
       .addCase(fetchPatientsByDoctor.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.patients = action.payload.patients || action.payload;
+        state.patients = action.payload;
         state.error = null;
       })
       .addCase(fetchPatientsByDoctor.rejected, (state, action) => {
@@ -277,11 +282,11 @@ const patientSlice = createSlice({
       })
       // Create progress chart
       .addCase(createProgressChart.fulfilled, (state, action) => {
-        state.progressCharts.push(action.payload.data);
+        state.progressCharts.push(action.payload);
       });
   },
 });
 
-export const { setCurrentPatient, setFilters, clearFilters, clearError } = patientSlice.actions;
+export const { setCurrentPatient, setCurrentTreatmentPlan, setFilters, clearFilters, clearError } = patientSlice.actions;
 export default patientSlice.reducer;
 

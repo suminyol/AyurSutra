@@ -4,7 +4,6 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain_community.document_loaders.csv_loader import CSVLoader
 
-
 load_dotenv()
 
 pdf_path1 = Path(__file__).parent / "data1.csv"
@@ -31,10 +30,11 @@ docs4 = loader4.load()
 docs = docs1 + docs2 + docs3 + docs4
 
 
-#vector embedding
+# vector embedding
 embedding_model = OpenAIEmbeddings(
     model="text-embedding-3-small"
 )
+
 
 
 # Using [embedding_model] create embeddings of [split_docs] and store in DB

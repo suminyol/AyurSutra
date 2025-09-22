@@ -2,19 +2,6 @@ import { API_BASE_URL } from '../constants';
 import { Patient, MedicalHistoryEntry, ProgressData, ProgressChart } from '../types';
 
 class PatientService {
-  getProgressData(patientId: string) {
-    throw new Error('Method not implemented.');
-  }
-  
-  createProgressChart(chartData: Omit<ProgressChart, "id">) {
-    throw new Error('Method not implemented.');
-  }
-  getProgressCharts(patientId: string) {
-    throw new Error('Method not implemented.');
-  }
-  addProgressData(progressData: Omit<ProgressData, "id">) {
-    throw new Error('Method not implemented.');
-  }
   private baseURL = `${API_BASE_URL}/patients`;
 
   private getAuthHeaders(): HeadersInit {
@@ -214,6 +201,130 @@ async addPatientByDoctor(patientData: any): Promise<Patient> {
       return data.data;
     } catch (error) {
       console.error('Get patient appointments error:', error);
+      throw error;
+    }
+  }
+
+  async saveExamination(patientId: string, examinationData: any): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseURL}/${patientId}/examination`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(examinationData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save examination data');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Save examination error:', error);
+      throw error;
+    }
+  }
+
+  async generateSolution({ patientId, formData }: { patientId: string; formData: any }): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/generate-solution`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ patientId, formData }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate AI solution');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Generate AI solution error:', error);
+      throw error;
+    }
+  }
+
+  async getProgressData(patientId: string): Promise<ProgressData[]> {
+    try {
+      const response = await fetch(`${this.baseURL}/${patientId}/progress`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch progress data');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Get progress data error:', error);
+      throw error;
+    }
+  }
+
+  async addProgressData(progressData: Omit<ProgressData, 'id'>): Promise<ProgressData> {
+    try {
+      const response = await fetch(`${this.baseURL}/progress`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(progressData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add progress data');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Add progress data error:', error);
+      throw error;
+    }
+  }
+
+  async getProgressCharts(patientId: string): Promise<ProgressChart[]> {
+    try {
+      const response = await fetch(`${this.baseURL}/${patientId}/progress-charts`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch progress charts');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Get progress charts error:', error);
+      throw error;
+    }
+  }
+
+  async createProgressChart(chartData: Omit<ProgressChart, 'id'>): Promise<ProgressChart> {
+    try {
+      const response = await fetch(`${this.baseURL}/progress-charts`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(chartData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create progress chart');
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('Create progress chart error:', error);
       throw error;
     }
   }

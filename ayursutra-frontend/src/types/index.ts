@@ -28,6 +28,7 @@ export interface Patient extends User {
   currentTherapies: TherapySession[];
   emergencyContact: EmergencyContact;
   insuranceInfo?: InsuranceInfo;
+  examinationData?: any;
 }
 
 export interface MedicalRecord {
@@ -132,14 +133,21 @@ export interface PatientFeedback {
 // Notification Types
 export interface Notification {
   id: string;
-  userId: string;
+  userId?: string;
+  user?: string;
   type: NotificationType;
   title: string;
   message: string;
+  data?: any;
   isRead: boolean;
-  priority: 'low' | 'medium' | 'high';
+  readAt?: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   scheduledFor?: string;
+  sentAt?: string;
+  deliveryMethod?: string[];
+  isActive?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export type NotificationType = 
@@ -148,7 +156,17 @@ export type NotificationType =
   | 'session_cancelled'
   | 'session_rescheduled'
   | 'feedback_request'
-  | 'general';
+  | 'appointment_reminder'
+  | 'appointment_confirmation'
+  | 'appointment_cancelled'
+  | 'appointment_rescheduled'
+  | 'treatment_reminder'
+  | 'treatment_stage_completed'
+  | 'treatment_completed'
+  | 'payment_confirmation'
+  | 'payment_failed'
+  | 'general'
+  | 'system';
 
 // Progress Tracking Types
 export interface ProgressData {
@@ -459,22 +477,4 @@ export interface UpdateDoctorData {
   clinic?: any;
   services?: any[];
   languages?: string[];
-}
-
-export interface Notification {
-  id: string;
-  user: string;
-  type: 'appointment_reminder' | 'appointment_confirmation' | 'appointment_cancelled' | 'appointment_rescheduled' | 'treatment_reminder' | 'treatment_stage_completed' | 'treatment_completed' | 'payment_confirmation' | 'payment_failed' | 'general' | 'system';
-  title: string;
-  message: string;
-  data?: any;
-  isRead: boolean;
-  readAt?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  scheduledFor: string;
-  sentAt?: string;
-  deliveryMethod: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }

@@ -68,7 +68,7 @@ const TreatmentPlan = () => {
 
                     {/* Day-wise Plan */}
                     <div className="space-y-6">
-                        {currentTreatmentPlan.schedule.map((dayPlan) => (
+                        {currentTreatmentPlan?.schedule?.map((dayPlan) => (
                             <div key={dayPlan.day} className="bg-white dark:bg-slate-800 shadow-xl rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                                 <div className="p-5 flex items-center space-x-4 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
                                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -77,7 +77,7 @@ const TreatmentPlan = () => {
                                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Day {dayPlan.day}</h2>
                                 </div>
                                 <div className="p-6 space-y-4">
-                                    {dayPlan.doctor_consultation.toLowerCase() === 'yes' && (
+                                    {dayPlan.doctor_consultation?.toLowerCase() === 'yes' && (
                                         <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 flex items-center space-x-3">
                                             {/* --- MODIFIED: Replaced UserMdIcon with UserIcon --- */}
                                             <UserIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0"/>
@@ -85,16 +85,16 @@ const TreatmentPlan = () => {
                                         </div>
                                     )}
                                     <ul className="space-y-3">
-                                        {dayPlan.plan.map((task, index) => (
+                                        {dayPlan.plan?.map((task, index) => (
                                             <li key={index} className="flex items-start space-x-3">
                                                 <CheckCircleIcon className="h-5 w-5 text-teal-500 mt-0.5 flex-shrink-0" />
                                                 <span className="text-base text-slate-600 dark:text-slate-300">{task}</span>
                                             </li>
-                                        ))}
+                                        )) || []}
                                     </ul>
                                 </div>
                             </div>
-                        ))}
+                        )) || []}
                     </div>
                 </div>
             </div>

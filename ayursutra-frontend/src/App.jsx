@@ -30,6 +30,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import PatientRecord from './pages/doctor/PatientRecord';
+import TreatmentPlan from './pages/doctor/TreatmentPlan';
 
 // Protected Route Component
 import ProtectedRoute from './components/ProtectedRoute';
@@ -146,6 +147,13 @@ function AppContent() {
               </DashboardLayout>
           </ProtectedRoute>
       } />
+          <Route path="/patient/:patientId/treatment-plan" element={
+            <ProtectedRoute requiredRole="doctor">
+              <DashboardLayout>
+                <TreatmentPlan />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
           <Route path="/doctor/patients" element={
             <ProtectedRoute requiredRole="doctor">
               <DashboardLayout>
