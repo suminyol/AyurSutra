@@ -216,7 +216,7 @@ const DoctorDashboard = () => {
                     Recent Patients
                   </h3>
                   <Link
-                    to={ROUTES.PATIENTS}
+                    to={ROUTES.PATIENT_MANAGEMENT}
                     className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                   >
                     <span>View all</span>
