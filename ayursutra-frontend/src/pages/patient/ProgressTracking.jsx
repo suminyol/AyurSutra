@@ -43,7 +43,7 @@ const ProgressTracking = () => {
                         Overall Progress
                       </dt>
                       <dd className="text-2xl font-bold text-slate-900 dark:text-white">
-                        85%
+                        {progressData.length > 0 ? 'Improving' : 'No Data'}
                       </dd>
                     </dl>
                   </div>
@@ -83,7 +83,7 @@ const ProgressTracking = () => {
                         Days Tracked
                       </dt>
                       <dd className="text-2xl font-bold text-slate-900 dark:text-white">
-                        30
+                        {new Set(progressData.map((data) => new Date(data.date).toDateString())).size}
                       </dd>
                     </dl>
                   </div>

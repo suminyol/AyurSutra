@@ -149,7 +149,7 @@ const PatientDashboard = () => {
     },
     {
       name: 'Treatment Progress',
-      value: '85%',
+      value: treatmentPlan ? `${treatmentPlan.schedule?.length || 0} days` : 'N/A',
       icon: ChartBarIcon,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
