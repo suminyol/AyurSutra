@@ -62,17 +62,33 @@ const PatientRecord = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const { currentPatient, isLoading } = useAppSelector((state) => state.patient);
+    const { currentPatient, currentTreatmentPlan, isLoading } = useAppSelector((state) => state.patient);
     const [formData, setFormData] = useState(getInitialFormData());
+    const [isEditingPlan, setIsEditingPlan] = useState(false);
+    const [editedPlan, setEditedPlan] = useState(null);
 
     useEffect(() => {
         if (patientId) {
             dispatch(fetchPatientById(patientId));
+            
+            // Check if treatment plan already exists
+            const existingPlan = localStorage.getItem(`treatment_plan_${patientId}`);
+            if (existingPlan) {
+                try {
+                    const parsedPlan = JSON.parse(existingPlan);
+                    dispatch(setCurrentTreatmentPlan(parsedPlan));
+                    // Show message that plan exists and is now displayed
+                    toast.success('Existing treatment plan loaded and displayed below!');
+                    return;
+                } catch (error) {
+                    console.error('Error loading existing treatment plan:', error);
+                }
+            }
         }
         return () => {
             dispatch(setCurrentPatient(null));
         };
-    }, [patientId, dispatch]);
+    }, [patientId, dispatch, navigate]);
 
     useEffect(() => {
         if (currentPatient?.examinationData) {
@@ -204,9 +220,22 @@ const PatientRecord = () => {
             });
 
             const currentTreatmentPlan = await res.json();
-            //use data.schedule
-            dispatch(setCurrentTreatmentPlan(currentTreatmentPlan));
-            return currentTreatmentPlan;
+            
+            // Save treatment plan permanently with patient info
+            const planData = {
+                ...currentTreatmentPlan,
+                patientId,
+                patientName: currentPatient?.user?.name || 'Unknown',
+                createdAt: new Date().toISOString(),
+                formData: formData // Save the form data used to generate the plan
+            };
+            
+            // Save to localStorage for persistence
+            localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(planData));
+            
+            // Set in Redux for immediate use
+            dispatch(setCurrentTreatmentPlan(planData));
+            return planData;
         };
         
         // Use toast.promise with the sendMessage function directly
@@ -215,7 +244,8 @@ const PatientRecord = () => {
         toast.promise(promise, {
             loading: 'Analyzing data and generating AI solution...',
             success: (result) => {
-                navigate(`/patient/${patientId}/treatment-plan`);
+                // Show the plan is now displayed
+                toast.success('Treatment plan generated and displayed below! You can now edit or save it.');
                 return `AI solution generated successfully!`;
             },
             error: 'Failed to generate AI solution.',
@@ -298,6 +328,134 @@ const PatientRecord = () => {
                             </div>
                         </div>
                     ))}
+
+                    {/* Treatment Plan Display Section */}
+                    {currentTreatmentPlan && (
+                        <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 border-b border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <SparklesIcon className="h-8 w-8 text-emerald-600" />
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Treatment Plan Generated</h2>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                                                Created on: {new Date(currentTreatmentPlan.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-3">
+                                        {isEditingPlan ? (
+                                            <>
+                                                <button
+                                                    onClick={() => {
+                                                        if (editedPlan && patientId) {
+                                                            const updatedPlan = {
+                                                                ...editedPlan,
+                                                                updatedAt: new Date().toISOString()
+                                                            };
+                                                            localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(updatedPlan));
+                                                            dispatch(setCurrentTreatmentPlan(updatedPlan));
+                                                            setIsEditingPlan(false);
+                                                            setEditedPlan(null);
+                                                            toast.success('Treatment plan updated successfully!');
+                                                        }
+                                                    }}
+                                                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-semibold"
+                                                >
+                                                    Save Changes
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsEditingPlan(false);
+                                                        setEditedPlan(null);
+                                                    }}
+                                                    className="px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm font-semibold"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setEditedPlan(JSON.parse(JSON.stringify(currentTreatmentPlan)));
+                                                    setIsEditingPlan(true);
+                                                }}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                                            >
+                                                Edit Plan
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="p-6">
+                                {/* Summary Section */}
+                                {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.summary && (
+                                    <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Treatment Summary</h3>
+                                        {isEditingPlan ? (
+                                            <textarea
+                                                value={editedPlan?.summary || ''}
+                                                onChange={(e) => setEditedPlan({...editedPlan, summary: e.target.value})}
+                                                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none"
+                                                rows={3}
+                                            />
+                                        ) : (
+                                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                {currentTreatmentPlan.summary}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Day-wise Plan */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Daily Treatment Schedule</h3>
+                                    <div className="grid gap-4">
+                                        {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.schedule?.map((dayPlan, index) => (
+                                            <div key={dayPlan.day} className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700/30">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h4 className="text-md font-semibold text-slate-900 dark:text-white">
+                                                        Day {dayPlan.day}
+                                                    </h4>
+                                                    {dayPlan.doctor_consultation?.toLowerCase() === 'yes' && (
+                                                        <span className="px-2 py-1 text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full">
+                                                            Doctor Consultation
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                <ul className="space-y-2">
+                                                    {dayPlan.plan?.map((task, taskIndex) => (
+                                                        <li key={taskIndex} className="flex items-start space-x-2">
+                                                            <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
+                                                            {isEditingPlan ? (
+                                                                <input
+                                                                    type="text"
+                                                                    value={task}
+                                                                    onChange={(e) => {
+                                                                        const newSchedule = [...editedPlan.schedule];
+                                                                        newSchedule[index].plan[taskIndex] = e.target.value;
+                                                                        setEditedPlan({...editedPlan, schedule: newSchedule});
+                                                                    }}
+                                                                    className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
+                                                                />
+                                                            ) : (
+                                                                <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                                                                    {task}
+                                                                </span>
+                                                            )}
+                                                        </li>
+                                                    )) || []}
+                                                </ul>
+                                            </div>
+                                        )) || []}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Action Buttons */}
                      <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col sm:flex-row justify-end items-center gap-4">
