@@ -69,52 +69,32 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user and include password for comparison
     const user = await User.findByEmailOrPhone(email).select('+password');
     
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    // Check if account is locked
     if (user.isLocked) {
-      return res.status(401).json({
-        success: false,
-        message: 'Account is temporarily locked due to multiple failed login attempts. Please try again later.'
-      });
+      return res.status(401).json({ success: false, message: 'Account is temporarily locked. Please try again later.' });
     }
 
-    // Check password
     const isPasswordValid = await user.comparePassword(password);
     
     if (!isPasswordValid) {
-      // Increment login attempts
       await user.incLoginAttempts();
-      
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    // Reset login attempts on successful login
     if (user.loginAttempts > 0) {
-      await user.updateOne({
-        $unset: { loginAttempts: 1, lockUntil: 1 },
-        $set: { lastLogin: new Date() }
-      });
+      await user.updateOne({ $unset: { loginAttempts: 1, lockUntil: 1 }, $set: { lastLogin: new Date() } });
     } else {
-      await user.updateOne({ lastLogin: new Date() });
+      await user.updateOne({ $set: { lastLogin: new Date() } });
     }
 
-    // Generate tokens
     const token = generateToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    // Set refresh token as httpOnly cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -122,29 +102,47 @@ const login = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 
+    // --- THIS IS THE NEW LOGIC ---
+    // Create the base user object to send back
+    const userPayload = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      isPhoneVerified: user.isPhoneVerified,
+      lastLogin: user.lastLogin
+    };
+
+    // If the user is a patient, find their Patient document and add the ID
+    if (user.role === 'patient') {
+      const patient = await Patient.findOne({ user: user._id });
+      if (patient) {
+        userPayload.patientId = patient._id; // This is the ID your frontend needs!
+      }
+    }
+
+    // If the user is a doctor, find their Doctor document and add the ID
+    if (user.role === 'doctor') {
+      const doctor = await Doctor.findOne({ user: user._id });
+      if (doctor) {
+        userPayload.doctorId = doctor._id;
+      }
+    }
+    // --- END OF NEW LOGIC ---
+
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          isPhoneVerified: user.isPhoneVerified,
-          lastLogin: user.lastLogin
-        },
+        user: userPayload, // Send the enhanced user object
         token
       }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Login failed. Please try again.'
-    });
+    res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
   }
 };
 

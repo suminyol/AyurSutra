@@ -10,7 +10,6 @@ import {
   ClockIcon,
   ChartBarIcon,
   BellIcon,
-  PlusIcon,
   EyeIcon,
   UserIcon,
   SparklesIcon,
@@ -23,106 +22,46 @@ const PatientDashboard = () => {
   const { appointments, isLoading } = useAppSelector((state) => state.appointments);
   const { notifications, unreadCount } = useAppSelector((state) => state.notifications);
   const [treatmentPlan, setTreatmentPlan] = useState(null);
+  const [isPlanLoading, setIsPlanLoading] = useState(true);
 
+  // --- MODIFIED: This useEffect is now simplified to fetch from your backend ---
   useEffect(() => {
+    // This logic for appointments and notifications is unchanged
     dispatch(fetchAppointments());
     dispatch(fetchNotifications());
     
-    // Function to load treatment plan
-    const loadTreatmentPlan = () => {
-      if (user?.id) {
-        // Try to find treatment plan with various possible keys
-        const possibleKeys = [
-          `treatment_plan_${user.id}`,
-          `treatment_plan_${user._id}`,
-        ];
-        
-        // Also check all localStorage keys for any treatment plan that might belong to this user
-        let foundPlan = null;
-        
-        for (const key of possibleKeys) {
-          const savedPlan = localStorage.getItem(key);
-          if (savedPlan) {
-            try {
-              foundPlan = JSON.parse(savedPlan);
-              break;
-            } catch (error) {
-              console.error('Error loading treatment plan:', error);
-            }
-          }
+    // This new function fetches the treatment plan from the database
+    const fetchTreatmentPlan = async () => {
+      const patientId = user?.patientId;  // Adjust if your patient ID is stored elsewhere
+      if (!patientId) {
+        setIsPlanLoading(false);
+        return;
+      }
+      
+      setIsPlanLoading(true);
+      try {
+        const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/patient/${patientId}`;
+        const response = await fetch(apiUrl);
+
+        if (response.ok) {
+          const result = await response.json();
+          setTreatmentPlan(result.data);
+        } else if (response.status !== 404) {
+          // Only show an error toast if it's a server error, not a "not found"
+          toast.error("Could not fetch treatment plan.");
+          throw new Error('Could not fetch treatment plan.');
         }
-        
-        // If not found with direct keys, search through all treatment plans
-        if (!foundPlan) {
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('treatment_plan_')) {
-              try {
-                const plan = JSON.parse(localStorage.getItem(key));
-                // Check if this plan belongs to the current user by name or other identifier
-                if (plan && (plan.patientName === user.name || plan.patientId === user.id || plan.patientId === user._id)) {
-                  foundPlan = plan;
-                  break;
-                }
-              } catch (error) {
-                console.error('Error parsing treatment plan:', error);
-              }
-            }
-          }
-        }
-        
-        // If still not found, check for the most recent treatment plan
-        if (!foundPlan) {
-          let latestPlan = null;
-          let latestTime = 0;
-          
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('treatment_plan_')) {
-              try {
-                const plan = JSON.parse(localStorage.getItem(key));
-                if (plan && plan.createdAt) {
-                  const planTime = new Date(plan.createdAt).getTime();
-                  if (planTime > latestTime) {
-                    latestTime = planTime;
-                    latestPlan = plan;
-                  }
-                }
-              } catch (error) {
-                console.error('Error parsing treatment plan:', error);
-              }
-            }
-          }
-          
-          foundPlan = latestPlan;
-        }
-        
-        if (foundPlan) {
-          setTreatmentPlan(foundPlan);
-        }
+      } catch (error) {
+        console.error(error.message);
+        setTreatmentPlan(null);
+      } finally {
+        setIsPlanLoading(false);
       }
     };
     
-    // Load treatment plan initially
-    loadTreatmentPlan();
+    fetchTreatmentPlan();
     
-    // Set up an interval to check for new treatment plans every 5 seconds
-    const interval = setInterval(loadTreatmentPlan, 5000);
-    
-    // Also listen for localStorage changes
-    const handleStorageChange = (e) => {
-      if (e.key && e.key.startsWith('treatment_plan_')) {
-        loadTreatmentPlan();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [dispatch, user?.id, user?.name]);
+  }, [dispatch, user?._id]);
 
   const upcomingAppointments = appointments
     .filter(appointment => appointment.status === 'scheduled')
@@ -195,7 +134,6 @@ const PatientDashboard = () => {
           <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-8 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center space-x-4">
-                
               </div>
               <h1 className="mt-4 text-3xl font-bold text-slate-900 dark:text-white">
                 Welcome back, {user?.name || 'Patient'}!
@@ -248,57 +186,19 @@ const PatientDashboard = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => {
-                      // Force reload treatment plan
-                      const loadTreatmentPlan = () => {
-                        if (user?.id) {
-                          let foundPlan = null;
-                          
-                          // Search through all treatment plans in localStorage
-                          for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key && key.startsWith('treatment_plan_')) {
-                              try {
-                                const plan = JSON.parse(localStorage.getItem(key));
-                                if (plan) {
-                                  foundPlan = plan;
-                                  break; // Take the first plan found
-                                }
-                              } catch (error) {
-                                console.error('Error parsing treatment plan:', error);
-                              }
-                            }
-                          }
-                          
-                          setTreatmentPlan(foundPlan);
-                          
-                          if (foundPlan) {
-                            toast.success('Treatment plan refreshed!');
-                          } else {
-                            toast.error('No treatment plan found');
-                          }
-                        }
-                      };
-                      loadTreatmentPlan();
-                    }}
-                    className="inline-flex items-center px-3 py-1 border border-slate-300 dark:border-slate-600 rounded-md text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600"
-                  >
-                    Refresh
-                  </button>
-                  {treatmentPlan && (
+                {treatmentPlan && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
                       Active
                     </span>
-                  )}
-                </div>
+                )}
               </div>
             </div>
-            {treatmentPlan ? (
+            {isPlanLoading ? (
+              <div className="p-6 text-center text-slate-500 dark:text-slate-400">Loading plan...</div>
+            ) : treatmentPlan ? (
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {treatmentPlan.schedule?.slice(0, 6).map((dayPlan, index) => (
+                  {treatmentPlan.schedule?.slice(0, 6).map((dayPlan) => (
                     <div key={dayPlan.day} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -367,26 +267,6 @@ const PatientDashboard = () => {
                 <p className="text-slate-600 dark:text-slate-300 mb-4">
                   Your doctor will generate a personalized treatment plan after your consultation.
                 </p>
-                <button
-                  onClick={() => {
-                    // Check localStorage again for any plans
-                    for (let i = 0; i < localStorage.length; i++) {
-                      const key = localStorage.key(i);
-                      if (key && key.startsWith('treatment_plan_')) {
-                        console.log(`Found plan key: ${key}`);
-                        try {
-                          const plan = JSON.parse(localStorage.getItem(key));
-                          console.log('Plan content:', plan);
-                        } catch (error) {
-                          console.error('Error parsing plan:', error);
-                        }
-                      }
-                    }
-                  }}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700"
-                >
-                  Check for Plans
-                </button>
               </div>
             )}
           </div>

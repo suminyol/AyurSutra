@@ -2,45 +2,63 @@ import { useForm, Controller } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
-const FeedbackModal = ({ isOpen, onClose, dayNumber, patientId, onFeedbackSubmitted }) => {
-  const { register, handleSubmit, control, formState: { errors } } = useForm();
+// --- MODIFIED: Props now include planId from the database ---
+const FeedbackModal = ({ isOpen, onClose, dayNumber, planId, onFeedbackSubmitted }) => {
+  const { register, handleSubmit, control } = useForm();
 
-  const onSubmit = (data) => {
+  // --- MODIFIED: This function now sends feedback to your backend API ---
+  const onSubmit = async (data) => {
+    if (!planId) {
+      toast.error("Cannot submit feedback: Plan ID is missing.");
+      return;
+    }
+
     try {
-      // Get the existing plan from localStorage
-      const savedPlan = localStorage.getItem(`treatment_plan_${patientId}`);
-      if (!savedPlan) {
-        toast.error('Could not find treatment plan to update.');
-        return;
+      // 1. Structure the feedback data to match your backend schema
+      const feedbackData = {
+        painLevel: parseInt(data.painLevel, 10),
+        stressLevel: parseInt(data.stressLevel, 10),
+        energyLevel: parseInt(data.energyLevel, 10),
+        appetite: data.appetite || 'Normal',
+        digestion: data.digestion || 'Comfortable',
+        sleepQuality: data.sleepQuality || 'Deep / Restful',
+        mentalState: data.mentalState || 'Calm / Clear',
+        notes: data.notes || "",
+      };
+
+      // 2. Construct the API URL using the environment variable
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/${planId}/feedback`;
+
+      // 3. Send the data to your backend
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dayNumber: dayNumber,
+          feedbackData: feedbackData
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Server responded with an error.');
       }
-      const plan = JSON.parse(savedPlan);
 
-      // Find the correct day and add the feedback
-      const dayIndex = plan.schedule.findIndex(d => d.day === dayNumber);
-      if (dayIndex !== -1) {
-        plan.schedule[dayIndex].feedback = {
-          ...data,
-          // Convert slider values to numbers
-          painLevel: parseInt(data.painLevel, 10),
-          stressLevel: parseInt(data.stressLevel, 10),
-          energyLevel: parseInt(data.energyLevel, 10),
-          submissionDate: new Date().toISOString(),
-        };
-      }
-
-      // Save the updated plan back to localStorage
-      localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(plan));
-
+      const result = await response.json();
+      
       toast.success('Feedback submitted successfully!');
-      onFeedbackSubmitted(plan);
+      // 4. Update the parent component's state with the fresh data from the server
+      onFeedbackSubmitted(result.data);
       onClose();
+
     } catch (error) {
       toast.error('Failed to save feedback.');
+      console.error(error);
     }
   };
 
   if (!isOpen) return null;
 
+  // --- The JSX for the form is UNCHANGED ---
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl m-4">

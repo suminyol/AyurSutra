@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchPatientById, savePatientExamination, setCurrentPatient, setCurrentTreatmentPlan } from '../../store/slices/patientSlice';
+import { fetchPatientById, setCurrentPatient, setCurrentTreatmentPlan } from '../../store/slices/patientSlice';
 import toast from 'react-hot-toast';
 import { SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import FeedbackDisplay from './FeedbackDisplay';
 
-// --- FORM STRUCTURE DEFINITION (No changes) ---
 const FORM_SECTIONS = {
     "PATIENT INFO": {
         age: { label: "Age", type: 'select', options: ['Child (0-15)', 'Adult (16-40)', 'Middle Age (41-60)', 'Senior (60+)'] },
@@ -63,46 +62,54 @@ const PatientRecord = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
+    const { user: loggedInDoctor } = useAppSelector((state) => state.auth);
     const { currentPatient, currentTreatmentPlan, isLoading } = useAppSelector((state) => state.patient);
     const [formData, setFormData] = useState(getInitialFormData());
     const [isEditingPlan, setIsEditingPlan] = useState(false);
     const [editedPlan, setEditedPlan] = useState(null);
 
     useEffect(() => {
-        if (patientId) {
-            dispatch(fetchPatientById(patientId));
-            
-            // Check if treatment plan already exists
-            const existingPlan = localStorage.getItem(`treatment_plan_${patientId}`);
-            if (existingPlan) {
+        const loadPatientData = async () => {
+            if (patientId) {
+                dispatch(fetchPatientById(patientId));
                 try {
-                    const parsedPlan = JSON.parse(existingPlan);
-                    dispatch(setCurrentTreatmentPlan(parsedPlan));
-                    // Show message that plan exists and is now displayed
-                    toast.success('Existing treatment plan loaded and displayed below!');
-                    return;
+                    const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/patient/${patientId}`;
+                    const response = await fetch(apiUrl);
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        dispatch(setCurrentTreatmentPlan(result.data));
+                        toast.success('Existing treatment plan loaded!');
+                    } else if (response.status === 404) {
+                        console.log("No existing treatment plan found for this patient.");
+                    } else {
+                        throw new Error('Failed to fetch treatment plan from server.');
+                    }
                 } catch (error) {
-                    console.error('Error loading existing treatment plan:', error);
+                    console.error("Error fetching treatment plan:", error);
+                    toast.error("Could not load treatment plan.");
                 }
             }
-        }
+        };
+
+        loadPatientData();
+
         return () => {
             dispatch(setCurrentPatient(null));
+            dispatch(setCurrentTreatmentPlan(null));
         };
-    }, [patientId, dispatch, navigate]);
+    }, [patientId, dispatch]);
 
     useEffect(() => {
         if (currentPatient?.examinationData) {
             setFormData(prev => ({ ...getInitialFormData(), ...currentPatient.examinationData }));
         } else {
-            // Try to load saved data from localStorage
             const savedData = localStorage.getItem(`patient_examination_${patientId}`);
             if (savedData) {
                 try {
                     const parsed = JSON.parse(savedData);
                     setFormData(prev => ({ ...getInitialFormData(), ...parsed.formData }));
                 } catch (error) {
-                    console.error('Error loading saved data:', error);
                     setFormData(getInitialFormData());
                 }
             } else {
@@ -111,43 +118,33 @@ const PatientRecord = () => {
         }
     }, [currentPatient, patientId]);
     
-   
+    // --- RESTORED: All form helper functions ---
     const totalFieldCount = useMemo(() => {
-        // Counts every conceptual field from the definition
         return Object.values(FORM_SECTIONS).flatMap(Object.keys).length;
     }, []);
 
     const progress = useMemo(() => {
-        // 1. Guard against the crash
         if (!formData) return 0;
-
         let filledFields = 0;
         Object.entries(formData).forEach(([key, value]) => {
             if (typeof value === 'object' && value !== null) {
-                // For checkbox groups, count as filled if at least one is checked
                 if (Object.values(value).some(v => v === true)) {
                     filledFields++;
                 }
             } else if (typeof value === 'string' && value) {
-                // For dropdowns and radio buttons, count if they have any value
                 filledFields++;
             }
         });
-        
-        if (totalFieldCount === 0) return 100; // Avoid division by zero
-        const calculatedProgress = Math.round((filledFields / totalFieldCount) * 100);
-        return Math.min(calculatedProgress, 100); // Ensure progress doesn't exceed 100%
+        if (totalFieldCount === 0) return 100;
+        return Math.min(Math.round((filledFields / totalFieldCount) * 100), 100);
     }, [formData, totalFieldCount]);
     
-    
-   
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         if (type === 'checkbox') {
             const [group, symptom] = name.split('.');
             setFormData(prev => ({
                 ...prev,
-                // 2. Guard against spreading a null/undefined object
                 [group]: { ...(prev[group] || {}), [symptom]: checked }
             }));
         } else {
@@ -157,23 +154,16 @@ const PatientRecord = () => {
 
     const formatDataForAI = (data) => {
       let reportString = "Ayurvedic Patient Assessment Report:\n\n";
-
       Object.entries(FORM_SECTIONS).forEach(([sectionTitle, fields]) => {
         reportString += `--- ${sectionTitle} ---\n`;
         Object.entries(fields).forEach(([key, config]) => {
           if (config.type === 'select') {
-            if (data[key]) {
-              reportString += `${config.label}: ${data[key]}\n`;
-            }
+            if (data[key]) reportString += `${config.label}: ${data[key]}\n`;
           } else if (config.type === 'checkbox') {
             const selectedSymptoms = Object.entries(data[key] || {})
               .filter(([, isChecked]) => isChecked)
-              .map(([symptomKey]) => {
-                // Find the original symptom name with correct casing and symbols
-                return config.options.find(opt => opt.replace(/[\/\s-]/g, '') === symptomKey);
-              })
-              .filter(Boolean); // Filter out any undefined if no match is found
-
+              .map(([symptomKey]) => config.options.find(opt => opt.replace(/[\/\s-]/g, '') === symptomKey))
+              .filter(Boolean);
             if (selectedSymptoms.length > 0) {
               reportString += `${config.label}: ${selectedSymptoms.join(', ')}\n`;
               reportString += `Severity: ${data[config.severity]}\n`;
@@ -182,80 +172,70 @@ const PatientRecord = () => {
         });
         reportString += "\n";
       });
-
       return reportString;
     };
 
     const handleSave = async () => {
         try {
-            // Save data locally to localStorage as backup
-            const patientData = {
-                patientId,
-                formData,
-                savedAt: new Date().toISOString()
-            };
+            const patientData = { patientId, formData, savedAt: new Date().toISOString() };
             localStorage.setItem(`patient_examination_${patientId}`, JSON.stringify(patientData));
-            
             toast.success('Patient record saved locally!');
         } catch (error) {
             toast.error('Failed to save record locally.');
         }
     };
     
-  
     const handleGenerateSolution = async () => {
         if (progress < 100) {
             toast.error('Please complete the entire form before generating a solution.');
             return;
         }
-        
-        // 1. Format the data into a string
+
         const formattedDataString = formatDataForAI(formData);
 
-        // ai integration - using only the sendMessage function
-        const sendMessage = async () => {
-            const res = await fetch("http://localhost:8000/chat", {
+        const createPlanOnServer = async () => {
+            const aiResponse = await fetch("http://localhost:8000/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: formattedDataString }),
             });
+            if (!aiResponse.ok) throw new Error('Failed to get response from AI service.');
+            const planFromAI = await aiResponse.json();
 
-            const currentTreatmentPlan = await res.json();
-            
-            // Save treatment plan permanently with patient info
             const planData = {
-                ...currentTreatmentPlan,
-                patientId,
+                patientId: patientId,
+                doctorId: loggedInDoctor?._id,
                 patientName: currentPatient?.user?.name || 'Unknown',
-                createdAt: new Date().toISOString(),
-                formData: formData // Save the form data used to generate the plan
+                summary: planFromAI.summary,
+                schedule: planFromAI.schedule,
+                formData: formData
             };
             
-            // Save to localStorage for persistence
-            localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(planData));
-            
-            // Set in Redux for immediate use
-            dispatch(setCurrentTreatmentPlan(planData));
-            return planData;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans`;
+            const serverResponse = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(planData),
+            });
+
+            if (!serverResponse.ok) throw new Error('Failed to save treatment plan to the server.');
+
+            const savedPlan = await serverResponse.json();
+            dispatch(setCurrentTreatmentPlan(savedPlan.data));
+            return savedPlan.data;
         };
-        
-        // Use toast.promise with the sendMessage function directly
-        const promise = sendMessage();
-        
-        toast.promise(promise, {
-            loading: 'Analyzing data and generating AI solution...',
-            success: (result) => {
-                // Show the plan is now displayed
-                toast.success('Treatment plan generated and displayed below! You can now edit or save it.');
-                return `AI solution generated successfully!`;
-            },
-            error: 'Failed to generate AI solution.',
+
+        toast.promise(createPlanOnServer(), {
+            loading: 'Generating AI solution and saving plan...',
+            success: 'Treatment plan created and saved successfully!',
+            error: (err) => err.message || 'Failed to create treatment plan.',
         });
     };
 
     if (isLoading && !currentPatient) return <div className="p-8 text-center">Loading patient details...</div>;
     if (!currentPatient) return <div className="p-8 text-center">Patient not found.</div>;
 
+    // The JSX below is unchanged
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -349,16 +329,17 @@ const PatientRecord = () => {
                                             <>
                                                 <button
                                                     onClick={() => {
+                                                        // TODO: This needs to be updated to make a PUT request to your backend to save the edited plan.
                                                         if (editedPlan && patientId) {
                                                             const updatedPlan = {
                                                                 ...editedPlan,
                                                                 updatedAt: new Date().toISOString()
                                                             };
-                                                            localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(updatedPlan));
+                                                            localStorage.setItem(`treatment_plan_${patientId}`, JSON.stringify(updatedPlan)); // This is temporary
                                                             dispatch(setCurrentTreatmentPlan(updatedPlan));
                                                             setIsEditingPlan(false);
                                                             setEditedPlan(null);
-                                                            toast.success('Treatment plan updated successfully!');
+                                                            toast.success('UI updated! (DB update not implemented yet)');
                                                         }
                                                     }}
                                                     className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-semibold"
@@ -479,4 +460,3 @@ const PatientRecord = () => {
 };
 
 export default PatientRecord;
-
