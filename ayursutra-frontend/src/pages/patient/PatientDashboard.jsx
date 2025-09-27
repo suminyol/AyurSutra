@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchAppointments } from '../../store/slices/appointmentSlice';
 import { fetchNotifications } from '../../store/slices/notificationSlice';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../constants';
+import toast from 'react-hot-toast';
 import {
   CalendarDaysIcon,
   ClockIcon,
@@ -13,6 +14,7 @@ import {
   EyeIcon,
   UserIcon,
   SparklesIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const PatientDashboard = () => {
@@ -20,11 +22,107 @@ const PatientDashboard = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { appointments, isLoading } = useAppSelector((state) => state.appointments);
   const { notifications, unreadCount } = useAppSelector((state) => state.notifications);
+  const [treatmentPlan, setTreatmentPlan] = useState(null);
 
   useEffect(() => {
     dispatch(fetchAppointments());
     dispatch(fetchNotifications());
-  }, [dispatch]);
+    
+    // Function to load treatment plan
+    const loadTreatmentPlan = () => {
+      if (user?.id) {
+        // Try to find treatment plan with various possible keys
+        const possibleKeys = [
+          `treatment_plan_${user.id}`,
+          `treatment_plan_${user._id}`,
+        ];
+        
+        // Also check all localStorage keys for any treatment plan that might belong to this user
+        let foundPlan = null;
+        
+        for (const key of possibleKeys) {
+          const savedPlan = localStorage.getItem(key);
+          if (savedPlan) {
+            try {
+              foundPlan = JSON.parse(savedPlan);
+              break;
+            } catch (error) {
+              console.error('Error loading treatment plan:', error);
+            }
+          }
+        }
+        
+        // If not found with direct keys, search through all treatment plans
+        if (!foundPlan) {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('treatment_plan_')) {
+              try {
+                const plan = JSON.parse(localStorage.getItem(key));
+                // Check if this plan belongs to the current user by name or other identifier
+                if (plan && (plan.patientName === user.name || plan.patientId === user.id || plan.patientId === user._id)) {
+                  foundPlan = plan;
+                  break;
+                }
+              } catch (error) {
+                console.error('Error parsing treatment plan:', error);
+              }
+            }
+          }
+        }
+        
+        // If still not found, check for the most recent treatment plan
+        if (!foundPlan) {
+          let latestPlan = null;
+          let latestTime = 0;
+          
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('treatment_plan_')) {
+              try {
+                const plan = JSON.parse(localStorage.getItem(key));
+                if (plan && plan.createdAt) {
+                  const planTime = new Date(plan.createdAt).getTime();
+                  if (planTime > latestTime) {
+                    latestTime = planTime;
+                    latestPlan = plan;
+                  }
+                }
+              } catch (error) {
+                console.error('Error parsing treatment plan:', error);
+              }
+            }
+          }
+          
+          foundPlan = latestPlan;
+        }
+        
+        if (foundPlan) {
+          setTreatmentPlan(foundPlan);
+        }
+      }
+    };
+    
+    // Load treatment plan initially
+    loadTreatmentPlan();
+    
+    // Set up an interval to check for new treatment plans every 5 seconds
+    const interval = setInterval(loadTreatmentPlan, 5000);
+    
+    // Also listen for localStorage changes
+    const handleStorageChange = (e) => {
+      if (e.key && e.key.startsWith('treatment_plan_')) {
+        loadTreatmentPlan();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [dispatch, user?.id, user?.name]);
 
   const upcomingAppointments = appointments
     .filter(appointment => appointment.status === 'scheduled')
@@ -51,7 +149,7 @@ const PatientDashboard = () => {
     },
     {
       name: 'Treatment Progress',
-      value: '85%',
+      value: treatmentPlan ? `${treatmentPlan.schedule?.length || 0} days` : 'N/A',
       icon: ChartBarIcon,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -131,6 +229,166 @@ const PatientDashboard = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Treatment Plan Section */}
+          <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center">
+                    <SparklesIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Your Treatment Plan
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      {treatmentPlan ? 'AI-generated personalized schedule' : 'No treatment plan yet'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      // Force reload treatment plan
+                      const loadTreatmentPlan = () => {
+                        if (user?.id) {
+                          let foundPlan = null;
+                          
+                          // Search through all treatment plans in localStorage
+                          for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('treatment_plan_')) {
+                              try {
+                                const plan = JSON.parse(localStorage.getItem(key));
+                                if (plan) {
+                                  foundPlan = plan;
+                                  break; // Take the first plan found
+                                }
+                              } catch (error) {
+                                console.error('Error parsing treatment plan:', error);
+                              }
+                            }
+                          }
+                          
+                          setTreatmentPlan(foundPlan);
+                          
+                          if (foundPlan) {
+                            toast.success('Treatment plan refreshed!');
+                          } else {
+                            toast.error('No treatment plan found');
+                          }
+                        }
+                      };
+                      loadTreatmentPlan();
+                    }}
+                    className="inline-flex items-center px-3 py-1 border border-slate-300 dark:border-slate-600 rounded-md text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600"
+                  >
+                    Refresh
+                  </button>
+                  {treatmentPlan && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
+                      Active
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            {treatmentPlan ? (
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {treatmentPlan.schedule?.slice(0, 6).map((dayPlan, index) => (
+                    <div key={dayPlan.day} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Day {dayPlan.day}
+                        </h4>
+                        {dayPlan.doctor_consultation?.toLowerCase() === 'yes' && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                            <UserIcon className="w-3 h-3 mr-1" />
+                            Doctor Visit
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {dayPlan.plan?.slice(0, 3).map((task, taskIndex) => (
+                          <div key={taskIndex} className="flex items-start space-x-2">
+                            <CheckCircleIcon className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
+                              {task}
+                            </span>
+                          </div>
+                        ))}
+                        {dayPlan.plan?.length > 3 && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 ml-6">
+                            +{dayPlan.plan.length - 3} more activities
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {treatmentPlan.schedule?.length > 6 && (
+                  <div className="mt-4 text-center">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                      Showing 6 of {treatmentPlan.schedule.length} days
+                    </p>
+                    <Link
+                      to={ROUTES.TREATMENT_HISTORY}
+                      className="inline-flex items-center px-4 py-2 border border-emerald-200 dark:border-emerald-700 rounded-lg text-sm font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <EyeIcon className="w-4 h-4 mr-2" />
+                      Show All Days
+                    </Link>
+                  </div>
+                )}
+                {treatmentPlan.schedule?.length <= 6 && treatmentPlan.schedule?.length > 0 && (
+                  <div className="mt-4 text-center">
+                    <Link
+                      to={ROUTES.TREATMENT_HISTORY}
+                      className="inline-flex items-center px-4 py-2 border border-emerald-200 dark:border-emerald-700 rounded-lg text-sm font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <EyeIcon className="w-4 h-4 mr-2" />
+                      View Full Plan
+                    </Link>
+                  </div>
+                )}
+                <div className="mt-6 text-center">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Plan created on: {new Date(treatmentPlan.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 text-center">
+                <SparklesIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Treatment Plan Yet</h4>
+                <p className="text-slate-600 dark:text-slate-300 mb-4">
+                  Your doctor will generate a personalized treatment plan after your consultation.
+                </p>
+                <button
+                  onClick={() => {
+                    // Check localStorage again for any plans
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const key = localStorage.key(i);
+                      if (key && key.startsWith('treatment_plan_')) {
+                        console.log(`Found plan key: ${key}`);
+                        try {
+                          const plan = JSON.parse(localStorage.getItem(key));
+                          console.log('Plan content:', plan);
+                        } catch (error) {
+                          console.error('Error parsing plan:', error);
+                        }
+                      }
+                    }
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+                >
+                  Check for Plans
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
