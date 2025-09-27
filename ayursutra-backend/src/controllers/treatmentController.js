@@ -3,6 +3,8 @@ const Appointment = require('../models/Appointment').default;
 const Patient = require('../models/Patient').default;
 const Doctor = require('../models/Doctor').default;
 const { authenticate, authorize } = require('../middleware/auth');
+const Notification = require('../models/Notification').default; // 👈 Import Notification model
+const notificationDispatcher = require('../services/notificationDispatcher'); // 👈 Import dispatcher
 
 // @desc    Generate AI treatment plan
 // @route   POST /api/treatments/generate-ai-plan
@@ -83,28 +85,22 @@ const createTreatment = async (req, res) => {
   try {
     const { patientId, appointmentId, diagnosis, aiPlan, doctorCustomizations } = req.body;
 
-    // Verify appointment
-    const appointment = await Appointment.findById(appointmentId);
+    const appointment = await Appointment.findById(appointmentId)
+        .populate({ path: 'doctor', populate: 'user' })
+        .populate({ path: 'patient', populate: 'user' });
+
     if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Appointment not found'
-      });
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
 
-    // Check if treatment already exists for this appointment
     const existingTreatment = await Treatment.findOne({ appointment: appointmentId });
     if (existingTreatment) {
-      return res.status(400).json({
-        success: false,
-        message: 'Treatment already exists for this appointment'
-      });
+      return res.status(400).json({ success: false, message: 'Treatment already exists for this appointment' });
     }
 
-    // Create treatment
-    const treatment = await Treatment.create({
+    const treatment = new Treatment({
       patient: patientId,
-      doctor: appointment.doctor,
+      doctor: appointment.doctor._id,
       appointment: appointmentId,
       diagnosis: {
         primary: diagnosis.primary,
@@ -114,7 +110,6 @@ const createTreatment = async (req, res) => {
       }
     });
 
-    // Generate AI plan if provided
     if (aiPlan) {
       treatment.aiGeneratedPlan = {
         isGenerated: true,
@@ -127,15 +122,43 @@ const createTreatment = async (req, res) => {
       };
     }
 
-    // Apply doctor customizations if provided
     if (doctorCustomizations) {
-      await treatment.customizePlan(doctorCustomizations, appointment.doctor);
+      await treatment.customizePlan(doctorCustomizations, appointment.doctor._id);
     }
 
     await treatment.save();
 
-    // Populate treatment data
-    await treatment.populate([
+    // --- 👇 NEW NOTIFICATION LOGIC ---
+    const patientUser = appointment.patient.user;
+    const doctorUser = appointment.doctor.user;
+
+    // 1. Prepare data for notification templates
+    const notificationData = {
+        doctorName: doctorUser.name,
+        patientName: patientUser.name,
+        treatmentId: treatment._id,
+        link: `/treatments/${treatment._id}`,
+        // You can add more data here for the templates, e.g.,
+        // duration: treatment.customizedPlan.overallDuration.value,
+        // cost: treatment.customizedPlan.estimatedCost
+    };
+
+    // 2. Create the notification record for the patient
+    const patientNotification = await Notification.create({
+        user: patientUser._id,
+        type: 'treatment_plan', // This type must match a template in your email/sms services
+        title: 'Your Treatment Plan is Ready',
+        message: `Your personalized treatment plan from Dr. ${doctorUser.name} has been created.`,
+        data: notificationData,
+        link: notificationData.link,
+        deliveryMethod: ['in_app', 'email'] // Example: In-app and Email, no SMS
+    });
+
+    // 3. Dispatch the notification to external channels (email, sms)
+    notificationDispatcher.dispatchNotification(patientNotification);
+    // --- END NOTIFICATION LOGIC ---
+
+    const populatedTreatment = await Treatment.findById(treatment._id).populate([
       { path: 'patient', populate: { path: 'user', select: 'name email phone' } },
       { path: 'doctor', populate: { path: 'user', select: 'name email phone' } },
       { path: 'appointment' }
@@ -144,7 +167,7 @@ const createTreatment = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Treatment created successfully',
-      data: { treatment }
+      data: { treatment: populatedTreatment }
     });
   } catch (error) {
     console.error('Create treatment error:', error);
@@ -154,7 +177,6 @@ const createTreatment = async (req, res) => {
     });
   }
 };
-
 // @desc    Get all treatments
 // @route   GET /api/treatments
 // @access  Private

@@ -16,7 +16,7 @@ const initialState: NotificationState = {
   error: null,
 };
 
-// Async thunks
+// Async thunks (These remain unchanged)
 export const fetchNotifications = createAsyncThunk(
   'notifications/fetch',
   async (_, { rejectWithValue }) => {
@@ -46,7 +46,6 @@ export const markAllNotificationsAsRead = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await notificationService.markAllAsRead();
-      return null;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to mark all notifications as read');
     }
@@ -69,10 +68,17 @@ const notificationSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    addNotification: (state, action: PayloadAction<Notification>) => {
-      state.notifications.unshift(action.payload);
-      if (!action.payload.isRead) {
-        state.unreadCount += 1;
+    /**
+     * NEW: Adds a new notification received from a WebSocket push.
+     * Prepends to the list and increments the unread count for a real-time feel.
+     */
+    addLiveNotification: (state, action: PayloadAction<Notification>) => {
+      // Avoid adding duplicates if the notification somehow already exists
+      if (!state.notifications.find(n => n.id === action.payload.id)) {
+        state.notifications.unshift(action.payload); // Add to the top of the list
+        if (!action.payload.isRead) {
+          state.unreadCount += 1;
+        }
       }
     },
     clearError: (state) => {
@@ -86,26 +92,15 @@ const notificationSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-    .addCase(fetchNotifications.fulfilled, (state, action) => {
-  state.isLoading = false;
-  // This is the robust payload handling from your local version
-  let notifications = [];
-  
-  if (Array.isArray(action.payload)) {
-    notifications = action.payload;
-  } else if (action.payload && Array.isArray(action.payload.notifications)) {
-    notifications = action.payload.notifications;
-  } else if (action.payload && Array.isArray(action.payload.data)) {
-    notifications = action.payload.data;
-  } else {
-    console.warn('Unexpected notification payload format:', action.payload);
-    notifications = [];
-  }
-  
-  state.notifications = notifications;
-  state.unreadCount = notifications.filter(n => !n.isRead).length;
-  state.error = null;
-})
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // This logic correctly handles the payload from your backend
+        const notifications = action.payload?.notifications || [];
+        state.notifications = notifications;
+        // Accurately calculate unread count from the fetched data
+        state.unreadCount = notifications.filter(n => !n.isRead).length;
+        state.error = null;
+      })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -139,5 +134,6 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { addNotification, clearError } = notificationSlice.actions;
+// Export the new action
+export const { addLiveNotification, clearError } = notificationSlice.actions;
 export default notificationSlice.reducer;

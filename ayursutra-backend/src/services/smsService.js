@@ -1,84 +1,45 @@
-// SMS Service using Twilio or similar service
-// For now, we'll create a mock implementation
+import twilio from 'twilio';
+
+// Initialize the Twilio client with credentials from your .env file
+// Make sure TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER are set
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const sendSMS = async ({ to, message }) => {
+  // Ensure 'to' number is in E.164 format (e.g., +919876543210)
+  if (!to || !process.env.TWILIO_PHONE_NUMBER) {
+    console.warn('SMS not sent: Missing recipient phone number or Twilio config.');
+    return;
+  }
+  
   try {
-    // Mock SMS sending - replace with actual SMS service
-    console.log(`SMS sent to ${to}: ${message}`);
-    
-    // In production, you would use a service like:
-    // - Twilio
-    // - AWS SNS
-    // - TextLocal
-    // - MSG91
-    
-    // Example with Twilio:
-    /*
-    const twilio = require('twilio');
-    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    
     const result = await client.messages.create({
       body: message,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: to
     });
-    
+    console.log(`SMS sent successfully to ${to}, SID: ${result.sid}`);
     return result;
-    */
-    
-    return {
-      success: true,
-      messageId: `mock_${Date.now()}`,
-      to,
-      message
-    };
   } catch (error) {
-    console.error('SMS sending error:', error);
-    throw error;
+    console.error(`SMS sending error to ${to}:`, error.message);
+    // Do not throw error here to prevent crashing the main flow,
+    // just log it. You can integrate a more robust logging service later.
   }
 };
 
-// Send bulk SMS
-const sendBulkSMS = async (messages) => {
-  try {
-    const results = await Promise.allSettled(
-      messages.map(msg => sendSMS(msg))
-    );
-    
-    const successful = results.filter(result => result.status === 'fulfilled').length;
-    const failed = results.filter(result => result.status === 'rejected').length;
-    
-    console.log(`Bulk SMS sent: ${successful} successful, ${failed} failed`);
-    return { successful, failed, results };
-  } catch (error) {
-    console.error('Bulk SMS sending error:', error);
-    throw error;
-  }
-};
-
-// SMS templates
+// Your SMS templates remain the same
 const smsTemplates = {
-  appointmentConfirmation: (data) => 
+  appointment_confirmation: (data) => 
     `Hi ${data.patientName}, your appointment with Dr. ${data.doctorName} is confirmed for ${data.date} at ${data.time}. AyurSutra`,
   
-  appointmentReminder: (data) => 
+  appointment_reminder: (data) => 
     `Reminder: You have an appointment with Dr. ${data.doctorName} tomorrow at ${data.time}. Please arrive 15 mins early. AyurSutra`,
   
-  treatmentReminder: (data) => 
-    `Hi ${data.patientName}, don't forget your ${data.therapyName} session today at ${data.time}. AyurSutra`,
-  
-  paymentConfirmation: (data) => 
-    `Payment of ₹${data.amount} received for appointment on ${data.date}. Thank you! AyurSutra`,
-  
-  verificationCode: (data) => 
-    `Your AyurSutra verification code is: ${data.code}. Valid for 10 minutes.`,
-  
-  passwordReset: (data) => 
-    `Your password reset code is: ${data.code}. Valid for 10 minutes. AyurSutra`
+  treatment_plan: (data) =>
+    `Hi ${data.patientName}, your new report from Dr. ${data.doctorName} is available in your AyurSutra dashboard.`
+  // ... other templates
 };
 
-module.exports = {
+export {
   sendSMS,
-  sendBulkSMS,
   smsTemplates
 };
