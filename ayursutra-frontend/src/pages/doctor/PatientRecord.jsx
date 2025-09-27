@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchPatientById, savePatientExamination, setCurrentPatient, setCurrentTreatmentPlan } from '../../store/slices/patientSlice';
 import toast from 'react-hot-toast';
 import { SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import FeedbackDisplay from './FeedbackDisplay';
 
 // --- FORM STRUCTURE DEFINITION (No changes) ---
 const FORM_SECTIONS = {
@@ -110,7 +111,7 @@ const PatientRecord = () => {
         }
     }, [currentPatient, patientId]);
     
-    // --- MODIFIED: Rewritten progress logic for accuracy and stability ---
+   
     const totalFieldCount = useMemo(() => {
         // Counts every conceptual field from the definition
         return Object.values(FORM_SECTIONS).flatMap(Object.keys).length;
@@ -139,7 +140,7 @@ const PatientRecord = () => {
     }, [formData, totalFieldCount]);
     
     
-    // --- MODIFIED: Made handleChange more defensive ---
+   
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         if (type === 'checkbox') {
@@ -201,7 +202,7 @@ const PatientRecord = () => {
         }
     };
     
-    // --- REPLACE your existing handleGenerateSolution function with this one ---
+  
     const handleGenerateSolution = async () => {
         if (progress < 100) {
             toast.error('Please complete the entire form before generating a solution.');
@@ -424,6 +425,7 @@ const PatientRecord = () => {
                                                             Doctor Consultation
                                                         </span>
                                                     )}
+                                                    
                                                 </div>
                                                 
                                                 <ul className="space-y-2">
@@ -449,6 +451,9 @@ const PatientRecord = () => {
                                                         </li>
                                                     )) || []}
                                                 </ul>
+                                                {currentTreatmentPlan?.schedule[index]?.feedback && !isEditingPlan && (
+                                                    <FeedbackDisplay feedback={currentTreatmentPlan.schedule[index].feedback} />
+                                                )}
                                             </div>
                                         )) || []}
                                     </div>
