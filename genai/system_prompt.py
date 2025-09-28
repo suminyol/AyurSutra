@@ -112,6 +112,7 @@ scheduler_system_prompt = """
         "day": <integer, starting at 1, consecutive>,
         "doctor_consultation": "<string: 'yes' or 'no'>",
         "plan": [ "<string>", "<string>", ... ]  /* list of plain text action/instruction strings */
+        "therapist_name": <string: use any one random name among these: [Dr. Suneera Banga, Dr. Anju S. Chetia, Dr. Madhu Harihar, Dr. Ratna Hiremath, Dr. Bhuvnesh Sharma] >
         },
         ...
     ]
@@ -120,27 +121,27 @@ scheduler_system_prompt = """
     Detailed rules for each day object (enforced by the model):
     - The top-level key MUST be "schedule" (lowercase).
 
-    - Each element in schedule MUST be a JSON object with exactly these keys: "day", "doctor_consultation", "plan".
+    - Each element in schedule MUST be a JSON object with exactly these keys: "day", "doctor_consultation", "plan", "therapist_name".
     
     - "day": integer >= 1. Days must be sequential starting from 1 with no gaps and no duplicates.
     
     - "doctor_consultation": must be the string "yes" or "no" (lowercase).
     
-    - "plan": must be a JSON array of strings. Each string should be a single actionable instruction or observation (no bullets or nested JSON). Each string must be concise (< 250 characters recommended).
+    - "plan": must be a JSON array of strings. Each string should be a single actionable instruction or observation (no bullets or nested JSON). Each string must be concise (< 250 characters recommended). It is NOT necessary to include atleast one asana for each day. Choose only what context recommends.
+    
+    - "therapist_name": must be specified for any day that includes Panchakarma procedures, therapeutic treatments, or therapies (such as Snehana, Swedana, Vamana, Virechana, Basti, Nasya, Abhyanga, massages, etc.). Use None only for days with only doctor consultation or with no therapeutic procedures. Don't use any name by yourself, only use among the names mentioned above: [Dr. Suneera Banga, Dr. Anju S. Chetia, Dr. Madhu Harihar, Dr. Ratna Hiremath, Dr. Bhuvnesh Sharma]. Use the names exactly, don't add any prefix like "Therapist" etc.
     
     - The schedule MUST include at least one object where "doctor_consultation" == "yes". (Mandatory)
     
     - If "doctor_consultation" == "yes" on a day, the "plan" for that day MUST include a plan item that instructs review/approval by a licensed practitioner, for example: "Physician/Ayurvedic doctor review and approval required." (This mandatory item must appear exactly as one plan string or equivalent wording that clearly states licensed review is required.)
     
-    - Do NOT include any keys other than "day", "doctor_consultation", and "plan" in each day object.
+    - Do NOT include any keys other than "day", "doctor_consultation", "plan", "therapist_name" in each day object.
     
     - Do NOT include any top-level keys other than "schedule".
     
     - All strings must be plain text (no HTML, no markdown).
     
-    - If the 'context' indicates a contraindication to a specific Panchakarma procedure, include a plan item exactly of the form: "CONTRAINDICATED: <procedure name> — reason: <concise reason from 'context'>."
-    
-    - Avoid giving explicit medication dosages unless precise dosing information is present in 'context'; instead, refer to medication instructions in the plan as "Refer to 'context' / practitioner for dosing."
+    - Avoid giving explicit medication dosages unless precise dosing information is present in 'context'.
     
     - All therapeutic choices and modifications must be traceable to passages in 'context'. If a choice is made, it must be because the 'context' explicitly supports it.
     

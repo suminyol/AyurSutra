@@ -432,6 +432,36 @@ const PatientRecord = () => {
                                                         </li>
                                                     )) || []}
                                                 </ul>
+                                                
+                                                {/* Therapist Name Display */}
+                                                {dayPlan.therapist_name && (
+                                                    <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-600">
+                                                        {isEditingPlan ? (
+                                                            <div className="flex items-center space-x-2">
+                                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Therapist:</span>
+                                                                <input
+                                                                    type="text"
+                                                                    value={dayPlan.therapist_name || ''}
+                                                                    onChange={(e) => {
+                                                                        const newSchedule = [...editedPlan.schedule];
+                                                                        newSchedule[index].therapist_name = e.target.value;
+                                                                        setEditedPlan({...editedPlan, schedule: newSchedule});
+                                                                    }}
+                                                                    className="flex-1 p-1.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
+                                                                    placeholder="Enter therapist name"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center space-x-2">
+                                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Therapist:</span>
+                                                                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                                                                    {dayPlan.therapist_name}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                
                                                 {currentTreatmentPlan?.schedule[index]?.feedback && !isEditingPlan && (
                                                     <FeedbackDisplay feedback={currentTreatmentPlan.schedule[index].feedback} />
                                                 )}

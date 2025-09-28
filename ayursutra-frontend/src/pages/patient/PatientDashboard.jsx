@@ -225,6 +225,18 @@ const PatientDashboard = () => {
                             +{dayPlan.plan.length - 3} more activities
                           </p>
                         )}
+                        {/* Therapist Name Display */}
+                        {dayPlan.therapist_name && (
+                          <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                            <div className="flex items-center space-x-1.5">
+                              <UserIcon className="w-3 h-3 text-teal-600" />
+                              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Therapist:</span>
+                              <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
+                                {dayPlan.therapist_name}
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

@@ -23,7 +23,14 @@ vector_db = QdrantVectorStore.from_existing_collection(
 )
 
 
-client = OpenAI()
+# client = OpenAI()
+
+
+client = OpenAI(
+    api_key= os.getenv('GEMINI_API_KEY'),
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+)
+
 
 class State(TypedDict):
     query : str
@@ -33,6 +40,7 @@ class DayPlan(BaseModel):
     day: int
     doctor_consultation: str  # "yes" or "no"
     plan: list[str]
+    therapist_name : str | None
 
 class ScheduleClassifier(BaseModel):
     schedule: list[DayPlan]
@@ -57,7 +65,7 @@ def chat_node(state : State):
     """
 
     response = client.beta.chat.completions.parse(
-        model= "gpt-4o-mini",
+        model= "gemini-2.5-flash",
         response_format=ScheduleClassifier,
         messages= [
             {"role" : "assistant", "content" : SYSTEM_PROMPT},
