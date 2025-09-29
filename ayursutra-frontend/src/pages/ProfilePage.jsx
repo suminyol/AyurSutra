@@ -154,7 +154,7 @@ const ProfilePage = () => {
                   <input
                     type="date"
                     name="dateOfBirth"
-                    value={formData.dateOfBirth}
+                    value={formData.dateOfBirth || '1999-01-24'}
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-600"
@@ -167,7 +167,7 @@ const ProfilePage = () => {
                   </label>
                   <select
                     name="gender"
-                    value={formData.gender}
+                    value={formData.gender||'male'}
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-600"
