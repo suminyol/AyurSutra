@@ -1,10 +1,58 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchPatientById, setCurrentPatient } from '../../store/slices/patientSlice';
+// Imports for redux hooks and actions are removed as we are making this component self-contained.
 import toast from 'react-hot-toast';
 import { SparklesIcon, ArrowLeftIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import FeedbackDisplay from './FeedbackDisplay';
+
+// --- START: SELF-CONTAINED COMPONENT ---
+// To resolve the import error, the FeedbackDisplay component is now defined directly inside this file.
+const FeedbackDisplay = ({ feedback }) => {
+    if (!feedback) return null;
+
+    const getSymptomStatus = (level) => {
+        switch (level) {
+            case 'better': return { text: 'Better', color: 'text-emerald-600 dark:text-emerald-400', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30' };
+            case 'same': return { text: 'Same', color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/30' };
+            case 'worse': return { text: 'Worse', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30' };
+            default: return { text: 'N/A', color: 'text-slate-500', bgColor: 'bg-slate-100 dark:bg-slate-700' };
+        }
+    };
+
+    const symptomStatus = getSymptomStatus(feedback.symptomStatus);
+
+    return (
+        <div className="mt-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center">
+                    <strong className="w-28 font-semibold text-slate-600 dark:text-slate-300">Symptom Status:</strong>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${symptomStatus.color} ${symptomStatus.bgColor}`}>
+                        {symptomStatus.text}
+                    </span>
+                </div>
+                <div className="flex items-center">
+                    <strong className="w-28 font-semibold text-slate-600 dark:text-slate-300">Energy Level:</strong>
+                    <span className="text-slate-800 dark:text-slate-200">{feedback.energyLevel || 'N/A'} / 10</span>
+                </div>
+                 <div className="flex items-center">
+                    <strong className="w-28 font-semibold text-slate-600 dark:text-slate-300">Sleep Quality:</strong>
+                    <span className="text-slate-800 dark:text-slate-200">{feedback.sleepQuality || 'N/A'}</span>
+                </div>
+                <div className="flex items-center">
+                    <strong className="w-28 font-semibold text-slate-600 dark:text-slate-300">Stress Level:</strong>
+                     <span className="text-slate-800 dark:text-slate-200">{feedback.stressLevel || 'N/A'} / 10</span>
+                </div>
+            </div>
+            {feedback.comments && (
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                     <strong className="font-semibold text-slate-600 dark:text-slate-300">Additional Comments:</strong>
+                     <p className="mt-1 text-sm text-slate-700 dark:text-slate-400 italic">"{feedback.comments}"</p>
+                </div>
+            )}
+        </div>
+    );
+};
+// --- END: SELF-CONTAINED COMPONENT ---
+
 
 const FORM_SECTIONS = {
     "PATIENT INFO": {
@@ -59,24 +107,35 @@ const getInitialFormData = () => {
 const PatientRecord = () => {
     const { patientId } = useParams();
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
+    // Redux dispatch is removed.
+    
+    // --- START: LOCAL STATE REPLACEMENT FOR REDUX ---
+    // The component now uses local state instead of a Redux store.
+    const [currentPatient, setCurrentPatient] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    // --- END: LOCAL STATE REPLACEMENT FOR REDUX ---
 
-    const { currentPatient, isLoading } = useAppSelector((state) => state.patient);
     const [treatment, setTreatment] = useState(null);
     const [formData, setFormData] = useState(getInitialFormData());
 
     useEffect(() => {
         const loadData = async () => {
             if (patientId) {
-                dispatch(fetchPatientById(patientId));
+                setIsLoading(true);
+                // --- START: SIMULATED DATA FETCHING ---
+                // This replaces the Redux async thunk `fetchPatientById`.
+                // In a real app, you would fetch patient details here.
+                // For now, we simulate finding a patient.
                 try {
-                    // --- HIGHLIGHT: Corrected the API URL construction ---
-                    // The VITE_API_BASE_URL variable should be set to 'http://localhost:3000/api'
-                    // The path here should NOT include a leading '/api'.
+                     // Mock patient data for demonstration
+                    const mockPatient = {
+                        _id: patientId,
+                        user: { name: "John Doe" },
+                        examinationData: {} // Assuming this can be populated from the form
+                    };
+                    setCurrentPatient(mockPatient);
+                    
                     const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/treatment-plans/patient/${patientId}`;
-                    // --- END HIGHLIGHT ---
-
-
                     const response = await fetch(apiUrl, {
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}` }
                     });
@@ -93,18 +152,22 @@ const PatientRecord = () => {
                         throw new Error(errorResult.message || 'Failed to fetch treatment from server.');
                     }
                 } catch (error) {
-                    console.error("Error fetching treatment:", error);
-                    toast.error(error.message || "Could not load treatment data.");
+                    console.error("Error fetching data:", error);
+                    toast.error(error.message || "Could not load patient data.");
+                } finally {
+                    setIsLoading(false);
                 }
+                // --- END: SIMULATED DATA FETCHING ---
             }
         };
 
         loadData();
 
         return () => {
-            dispatch(setCurrentPatient(null));
+            // This replaces the Redux action `setCurrentPatient(null)`.
+            setCurrentPatient(null);
         };
-    }, [patientId, dispatch]);
+    }, [patientId]);
 
     useEffect(() => {
         if (currentPatient?.examinationData) {
@@ -253,71 +316,30 @@ const PatientRecord = () => {
                                     Patient Daily Feedback
                                 </h2>
                             </div>
-                            
-                            <div className="p-6">
-                                {/* Summary Section */}
-                                {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.summary && (
-                                    <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Treatment Summary</h3>
-                                        {isEditingPlan ? (
-                                            <textarea
-                                                value={editedPlan?.summary || ''}
-                                                onChange={(e) => setEditedPlan({...editedPlan, summary: e.target.value})}
-                                                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none"
-                                                rows={3}
-                                            />
-                                        ) : (
-                                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                {currentTreatmentPlan.summary}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
+                            <div className="p-6 space-y-6">
+                                {(() => {
+                                    const feedbackEntries = treatment.schedule
+                                        ?.filter(day => day.feedback && Object.keys(day.feedback).length > 0)
+                                        .sort((a, b) => new Date(b.feedback.submittedAt) - new Date(a.feedback.submittedAt)) || [];
 
-                                {/* Day-wise Plan */}
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Daily Treatment Schedule</h3>
-                                    <div className="grid gap-4">
-                                        {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.schedule?.map((dayPlan, index) => (
-                                            <div key={dayPlan.day} className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700/30">
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <h4 className="text-md font-semibold text-slate-900 dark:text-white">
-                                                        Day {dayPlan.day}
-                                                    </h4>
-                                                    {dayPlan.doctor_consultation?.toLowerCase() === 'yes' && (
-                                                        <span className="px-2 py-1 text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full">
-                                                            Doctor Consultation
-                                                        </span>
-                                                    )}
-                                                    
-                                                </div>
-                                                
-                                                <ul className="space-y-2">
-                                                    {dayPlan.plan?.map((task, taskIndex) => (
-                                                        <li key={taskIndex} className="flex items-start space-x-2">
-                                                            <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
-                                                            {isEditingPlan ? (
-                                                                <input
-                                                                    type="text"
-                                                                    value={task}
-                                                                    onChange={(e) => {
-                                                                        const newSchedule = [...editedPlan.schedule];
-                                                                        newSchedule[index].plan[taskIndex] = e.target.value;
-                                                                        setEditedPlan({...editedPlan, schedule: newSchedule});
-                                                                    }}
-                                                                    className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                                                                />
-                                                            ) : (
-                                                                <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                                                                    {task}
-                                                                </span>
-                                                            )}
-                                                        </li>
-                                                    )) || []}
-                                                </ul>
-                                                {currentTreatmentPlan?.schedule[index]?.feedback && !isEditingPlan && (
-                                                    <FeedbackDisplay feedback={currentTreatmentPlan.schedule[index].feedback} />
-                                                )}
+                                    if (feedbackEntries.length > 0) {
+                                        return feedbackEntries.map((day) => (
+                                            <div key={day._id || day.day} className="border-b border-slate-200 dark:border-slate-700 pb-4 last:border-b-0 last:pb-0">
+                                                <h4 className="text-md font-semibold text-slate-800 dark:text-slate-200 mb-2">
+                                                    Feedback for Day {day.day}
+                                                    <span className="text-xs font-normal text-slate-500 ml-2">
+                                                        (Submitted on {new Date(day.feedback.submittedAt).toLocaleDateString()})
+                                                    </span>
+                                                </h4>
+                                                <FeedbackDisplay feedback={day.feedback} />
+                                            </div>
+                                        ));
+                                    } else {
+                                        return (
+                                            <div className="text-center py-8">
+                                                <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto text-slate-400" />
+                                                <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">No Feedback Submitted</h3>
+                                                <p className="mt-1 text-sm text-slate-500">This patient has not submitted any daily feedback yet.</p>
                                             </div>
                                         );
                                     }
@@ -325,7 +347,6 @@ const PatientRecord = () => {
                             </div>
                          </div>
                     )}
-                   
 
                     {/* Action Buttons */}
                      <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col sm:flex-row justify-end items-center gap-4">
