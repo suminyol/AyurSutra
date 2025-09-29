@@ -253,31 +253,71 @@ const PatientRecord = () => {
                                     Patient Daily Feedback
                                 </h2>
                             </div>
-                            <div className="p-6 space-y-6">
-                                {(() => {
-                                    // Correctly filter and sort feedback from the schedule
-                                    const feedbackEntries = treatment.schedule
-                                        .filter(day => day.feedback && Object.keys(day.feedback).length > 0)
-                                        .sort((a, b) => new Date(b.feedback.submittedAt) - new Date(a.feedback.submittedAt));
+                            
+                            <div className="p-6">
+                                {/* Summary Section */}
+                                {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.summary && (
+                                    <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Treatment Summary</h3>
+                                        {isEditingPlan ? (
+                                            <textarea
+                                                value={editedPlan?.summary || ''}
+                                                onChange={(e) => setEditedPlan({...editedPlan, summary: e.target.value})}
+                                                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none"
+                                                rows={3}
+                                            />
+                                        ) : (
+                                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                {currentTreatmentPlan.summary}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
-                                    if (feedbackEntries.length > 0) {
-                                        return feedbackEntries.map((day) => (
-                                            <div key={day._id || day.day} className="border-b border-slate-200 dark:border-slate-700 pb-4 last:border-b-0 last:pb-0">
-                                                <h4 className="text-md font-semibold text-slate-800 dark:text-slate-200 mb-2">
-                                                    Feedback for Day {day.day}
-                                                    <span className="text-xs font-normal text-slate-500 ml-2">
-                                                        (Submitted on {new Date(day.feedback.submittedAt).toLocaleDateString()})
-                                                    </span>
-                                                </h4>
-                                                <FeedbackDisplay feedback={day.feedback} />
-                                            </div>
-                                        ));
-                                    } else {
-                                        return (
-                                            <div className="text-center py-8">
-                                                <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto text-slate-400" />
-                                                <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">No Feedback Submitted</h3>
-                                                <p className="mt-1 text-sm text-slate-500">This patient has not submitted any daily feedback yet.</p>
+                                {/* Day-wise Plan */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Daily Treatment Schedule</h3>
+                                    <div className="grid gap-4">
+                                        {(isEditingPlan ? editedPlan : currentTreatmentPlan)?.schedule?.map((dayPlan, index) => (
+                                            <div key={dayPlan.day} className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700/30">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h4 className="text-md font-semibold text-slate-900 dark:text-white">
+                                                        Day {dayPlan.day}
+                                                    </h4>
+                                                    {dayPlan.doctor_consultation?.toLowerCase() === 'yes' && (
+                                                        <span className="px-2 py-1 text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full">
+                                                            Doctor Consultation
+                                                        </span>
+                                                    )}
+                                                    
+                                                </div>
+                                                
+                                                <ul className="space-y-2">
+                                                    {dayPlan.plan?.map((task, taskIndex) => (
+                                                        <li key={taskIndex} className="flex items-start space-x-2">
+                                                            <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
+                                                            {isEditingPlan ? (
+                                                                <input
+                                                                    type="text"
+                                                                    value={task}
+                                                                    onChange={(e) => {
+                                                                        const newSchedule = [...editedPlan.schedule];
+                                                                        newSchedule[index].plan[taskIndex] = e.target.value;
+                                                                        setEditedPlan({...editedPlan, schedule: newSchedule});
+                                                                    }}
+                                                                    className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
+                                                                />
+                                                            ) : (
+                                                                <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                                                                    {task}
+                                                                </span>
+                                                            )}
+                                                        </li>
+                                                    )) || []}
+                                                </ul>
+                                                {currentTreatmentPlan?.schedule[index]?.feedback && !isEditingPlan && (
+                                                    <FeedbackDisplay feedback={currentTreatmentPlan.schedule[index].feedback} />
+                                                )}
                                             </div>
                                         );
                                     }
