@@ -5,7 +5,8 @@ const router = express.Router();
 const {
     createPlan,
     getPlanForPatient,
-    addFeedback
+    addFeedback,
+    updatePlan 
 } = require('../controllers/treatmentPlanController');
 
 // --- START: MODIFIED SECTION ---
@@ -19,7 +20,7 @@ router.use(authenticate);
 
 router.post('/', createPlan);
 router.get('/patient/:patientId', getPlanForPatient);
-//router.post('/:planId/feedback', addFeedback);
 router.put('/:planId/feedback', addFeedback);
+router.put('/:planId', updatePlan);
 
 module.exports = router;

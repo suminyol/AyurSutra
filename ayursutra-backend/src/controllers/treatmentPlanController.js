@@ -149,3 +149,37 @@ exports.addFeedback = async (req, res) => {
     }
 };
 
+/**
+ * @desc    Update a treatment plan by a doctor
+ * @route   PUT /api/treatment-plans/:planId
+ * @access  Private (Doctor)
+ */
+exports.updatePlan = async (req, res) => {
+    try {
+        const { planId } = req.params;
+        const { schedule, summary } = req.body; // Get the updated schedule and summary
+
+        const plan = await TreatmentPlan.findById(planId);
+
+        if (!plan) {
+            return res.status(404).json({ success: false, message: 'Treatment plan not found.' });
+        }
+
+        // Update the fields
+        plan.schedule = schedule || plan.schedule;
+        plan.summary = summary || plan.summary;
+        
+        // Let Mongoose know that the nested 'schedule' array has changed
+        plan.markModified('schedule');
+
+        const updatedPlan = await plan.save();
+
+        // TODO: Optionally send a notification to the patient that their plan was updated.
+
+        res.status(200).json({ success: true, data: updatedPlan });
+
+    } catch (error) {
+        console.error('Error updating treatment plan:', error);
+        res.status(500).json({ success: false, message: 'Error updating plan', error: error.message });
+    }
+};

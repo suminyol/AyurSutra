@@ -225,6 +225,38 @@ const purvakarmaSteps = [
         </div>
       </div>
 
+              {/* Features section */}
+      {/* --- CHANGE: Reduced vertical padding --- */}
+      <div className="py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl lg:text-center mb-16">
+            <h2 className="text-base font-semibold leading-7 text-emerald-600 uppercase tracking-wide">Everything you need</h2>
+            <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+              Comprehensive Panchakarma Management
+            </p>
+            <p className="mt-6 text-xl leading-8 text-slate-600 dark:text-slate-300">
+              Our platform provides all the tools you need to manage your Ayurvedic practice efficiently and effectively.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+            <dl className="grid max-w-xl grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-2">
+              {features.map((feature) => (
+                <div key={feature.name} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
+                  <dt className="flex items-center gap-x-3 text-xl font-semibold leading-7 text-slate-900 dark:text-white mb-4">
+                    <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                      <feature.icon className="h-6 w-6 text-emerald-600" aria-hidden="true" />
+                    </div>
+                    {feature.name}
+                  </dt>
+                  <dd className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                    {feature.description}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </div>
       {/* Panchakarma Introduction */}
       {/* --- CHANGE: Reduced vertical padding --- */}
       <div className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-800/50">
@@ -311,38 +343,7 @@ const purvakarmaSteps = [
       </div>
     </div>
 
-      {/* Features section */}
-      {/* --- CHANGE: Reduced vertical padding --- */}
-      <div className="py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl lg:text-center mb-16">
-            <h2 className="text-base font-semibold leading-7 text-emerald-600 uppercase tracking-wide">Everything you need</h2>
-            <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
-              Comprehensive Panchakarma Management
-            </p>
-            <p className="mt-6 text-xl leading-8 text-slate-600 dark:text-slate-300">
-              Our platform provides all the tools you need to manage your Ayurvedic practice efficiently and effectively.
-            </p>
-          </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-2">
-              {features.map((feature) => (
-                <div key={feature.name} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
-                  <dt className="flex items-center gap-x-3 text-xl font-semibold leading-7 text-slate-900 dark:text-white mb-4">
-                    <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                      <feature.icon className="h-6 w-6 text-emerald-600" aria-hidden="true" />
-                    </div>
-                    {feature.name}
-                  </dt>
-                  <dd className="text-base leading-7 text-slate-600 dark:text-slate-300">
-                    {feature.description}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Therapy types section */}
       {/* --- CHANGE: Reduced vertical padding --- */}
