@@ -91,6 +91,10 @@ const appointmentSlice = createSlice({
         if (index !== -1) {
           state.appointments[index] = action.payload; // Update the appointment with the new 'cancelled' status
         }
+      })
+      .addCase(cancelAppointment.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

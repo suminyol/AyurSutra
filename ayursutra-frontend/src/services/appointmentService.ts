@@ -111,12 +111,12 @@ class AppointmentService {
     }
   }
 
-  async cancelAppointment(id: string, reason: string): Promise<Appointment> {
+  async cancelAppointment(id: string): Promise<Appointment> {
     try {
       const response = await fetch(`${this.baseURL}/${id}/cancel`, {
         method: 'PUT',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason: 'Cancelled by user' }), // You can optionally pass a reason
       });
 
       const data = await response.json();

@@ -208,7 +208,10 @@ const updateAppointment = async (req, res) => {
 const cancelAppointment = async (req, res) => {
   try {
     const { reason } = req.body;
-    const appointment = await Appointment.findById(req.params.id);
+    const appointment = await Appointment.findById(req.params.id).populate([
+        { path: 'doctor', populate: { path: 'user', select: 'id name' } },
+        { path: 'patient', populate: { path: 'user', select: 'id name' } }
+    ]);
     if (!appointment) {
       return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
@@ -216,19 +219,24 @@ const cancelAppointment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Appointment cannot be cancelled' });
     }
 
-    if (req.user.role === 'patient') {
-      const patient = await Patient.findOne({ user: req.user._id });
-      if (appointment.patient.toString() !== patient._id.toString()) {
-        return res.status(403).json({ success: false, message: 'Access denied' });
-      }
-    } else if (req.user.role === 'doctor') {
-      const doctor = await Doctor.findOne({ user: req.user._id });
-      if (appointment.doctor.toString() !== doctor._id.toString()) {
-        return res.status(403).json({ success: false, message: 'Access denied' });
-      }
-    }
+    
 
     await appointment.cancel(reason, req.user.role);
+
+    if (req.user.role === 'patient') {
+      // If a patient cancels, notify the doctor
+      if (appointment.doctor && appointment.doctor.user) {
+        const notification = await Notification.create({
+          user: appointment.doctor.user._id, // The DOCTOR's user ID
+          type: 'appointment_cancelled',
+          title: 'Appointment Cancelled',
+          message: `Your appointment with ${appointment.patient.user.name} on ${new Date(appointment.date).toLocaleDateString()} has been cancelled.`,
+          link: `/doctor/appointments`, // Or a link to a specific appointment detail page
+          data: { appointmentId: appointment._id, patientName: appointment.patient.user.name }
+        });
+        notificationDispatcher.dispatchNotification(notification);
+      }
+    }
     res.json({ success: true, message: 'Appointment cancelled successfully', data: { appointment } });
   } catch (error) {
     console.error('Cancel appointment error:', error);
