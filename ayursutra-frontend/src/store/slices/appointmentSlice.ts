@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Appointment, CreateAppointmentData } from '../../types'; // Make sure the path to your types is correct
+import { Appointment, CreateAppointmentData } from '../../types';
 import { appointmentService } from '../../services/appointmentService';
 
 interface AppointmentState {
@@ -16,14 +16,13 @@ const initialState: AppointmentState = {
   error: null,
 };
 
-// Async thunk to fetch appointments
+// Async thunks
 export const fetchAppointments = createAsyncThunk(
   'appointments/fetchAppointments',
   async (filters?: any, { rejectWithValue }) => {
     try {
-      // The service returns an object { appointments: [], pagination: {} }
       const response = await appointmentService.getAppointments(filters);
-      return response.appointments; // We only need the appointments array here
+      return response.appointments;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch appointments');
     }
@@ -42,6 +41,19 @@ export const createAppointment = createAsyncThunk(
   }
 );
 
+// --- ADD THIS NEW ASYNC THUNK ---
+export const cancelAppointment = createAsyncThunk(
+  'appointments/cancelAppointment',
+  async (appointmentId: string, { rejectWithValue }) => {
+    try {
+      const updatedAppointment = await appointmentService.cancelAppointment(appointmentId);
+      return updatedAppointment;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to cancel appointment');
+    }
+  }
+);
+
 const appointmentSlice = createSlice({
   name: 'appointments',
   initialState,
@@ -55,6 +67,7 @@ const appointmentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch Appointments
       .addCase(fetchAppointments.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -67,6 +80,17 @@ const appointmentSlice = createSlice({
       .addCase(fetchAppointments.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Create Appointment (This logic was missing, I've added it)
+      .addCase(createAppointment.fulfilled, (state, action: PayloadAction<Appointment>) => {
+          state.appointments.unshift(action.payload); // Add new appointment to the top of the list
+      })
+      // --- ADD THIS LOGIC FOR CANCELLING ---
+      .addCase(cancelAppointment.fulfilled, (state, action: PayloadAction<Appointment>) => {
+        const index = state.appointments.findIndex(app => app.id === action.payload.id);
+        if (index !== -1) {
+          state.appointments[index] = action.payload; // Update the appointment with the new 'cancelled' status
+        }
       });
   },
 });

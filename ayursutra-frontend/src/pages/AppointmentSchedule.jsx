@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { fetchAppointments, createAppointment } from '../store/slices/appointmentSlice';
+import { fetchAppointments, createAppointment, cancelAppointment } from '../store/slices/appointmentSlice';
 import { fetchDoctors } from '../store/slices/doctorSlice';
 import { fetchPatients } from '../store/slices/patientSlice';
-import { CalendarDaysIcon, ClockIcon, UserIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, ClockIcon, UserIcon, ArrowLeftIcon, EyeIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { ROUTES } from '../constants';
 
 
 const getInitialDate = () => {
@@ -101,6 +102,18 @@ const AppointmentSchedule = () => {
       return slotHour === currentHour && slotMinute > currentMinute;
     });
   };
+
+  const handleCancel = async (appointmentId) => {
+    if (window.confirm('Are you sure you want to cancel this appointment?')) {
+      try {
+        await dispatch(cancelAppointment(appointmentId)).unwrap();
+        toast.success('Appointment cancelled successfully.');
+      } catch (error) {
+        toast.error(error || 'Failed to cancel appointment.');
+      }
+    }
+  };
+
 
   const upcomingAppointments = appointments
     .filter(appointment => ['scheduled', 'confirmed'].includes(appointment.status))
@@ -228,7 +241,12 @@ const AppointmentSchedule = () => {
         </div>
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700"><h2 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Appointments</h2></div>
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Appointments</h2>
+              <Link to={ROUTES.MY_APPOINTMENTS} className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500">
+                View all <EyeIcon className="w-4 h-4 ml-1.5" />
+              </Link>
+            </div>
             <div className="p-6">
               {upcomingAppointments.length > 0 ? (
                 <div className="space-y-4">
@@ -241,7 +259,18 @@ const AppointmentSchedule = () => {
                           <p className="text-sm text-slate-600 dark:text-slate-400">with Dr. {appointment.doctor?.user?.name}</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">{appointment.status}</span>
+                      <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-3 py-1.5 ...">
+                        {appointment.status}
+                      </span>
+                      <button 
+                        onClick={() => handleCancel(appointment.id)}
+                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        title="Cancel Appointment"
+                      >
+                        <XCircleIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                     </div>
                   ))}
                 </div>

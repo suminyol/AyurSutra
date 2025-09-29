@@ -26,6 +26,7 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import PatientRecord from './pages/doctor/PatientRecord';
 import ProtectedRoute from './components/ProtectedRoute';
+import AllAppointmentsPage from './pages/AllAppointments';
 
 function LoginRedirect() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -117,6 +118,7 @@ function AppContent() {
             {/* Patient Routes */}
             <Route path={ROUTES.PATIENT_DASHBOARD} element={<ProtectedRoute requiredRole="patient"><DashboardLayout><PatientDashboard /></DashboardLayout></ProtectedRoute>} />
             <Route path={ROUTES.PROGRESS_TRACKING} element={<ProtectedRoute requiredRole="patient"><DashboardLayout><ProgressTracking /></DashboardLayout></ProtectedRoute>} />
+            <Route path={ROUTES.MY_APPOINTMENTS} element={<ProtectedRoute><DashboardLayout><AllAppointmentsPage /></DashboardLayout></ProtectedRoute>} />
 
             {/* Doctor Routes */}
             <Route path={ROUTES.DOCTOR_DASHBOARD} element={<ProtectedRoute requiredRole="doctor"><DashboardLayout><DoctorDashboard /></DashboardLayout></ProtectedRoute>} />

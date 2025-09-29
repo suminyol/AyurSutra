@@ -14,6 +14,7 @@ import {
   UserIcon,
   SparklesIcon,
   CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const PatientDashboard = () => {
@@ -369,9 +370,18 @@ const PatientDashboard = () => {
                             </p>
                           </div>
                         </div>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
-                          {appointment.status}
-                        </span>
+                        <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-3 py-1.5 ...">
+                        {appointment.status}
+                      </span>
+                      <button 
+                        onClick={() => handleCancel(appointment.id)}
+                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        title="Cancel Appointment"
+                      >
+                        <XCircleIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                       </div>
                     ))}
                   </div>
