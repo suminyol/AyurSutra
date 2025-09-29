@@ -1,6 +1,6 @@
 const { sendEmail } = require('./emailService');
 const { sendSMS, smsTemplates } = require('./smsService');
-const User = require('../models/User');
+const User = require('../models/User').default;
 const { getIO } = require('../socket'); // 👈 Import the getIO function
 
 /**

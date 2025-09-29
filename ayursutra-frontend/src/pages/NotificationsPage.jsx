@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchNotifications, markNotificationAsRead, deleteNotification } from '../store/slices/notificationSlice';
 import { BellIcon, TrashIcon, CheckIcon, SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const NotificationsPage = () => {
@@ -44,7 +44,7 @@ const NotificationsPage = () => {
         return 'bg-slate-100 text-slate-800 dark:bg-slate-900/40 dark:text-slate-200 border border-slate-200 dark:border-slate-800';
     }
   };
-
+  
   return (
     <div className="space-y-8">
             {/* Header Section */}
@@ -83,10 +83,13 @@ const NotificationsPage = () => {
                   </div>
                 ) : notifications.length > 0 ? (
                   <div className="space-y-4">
-                    {notifications.map((notification) => (
-                      <div
+                    {notifications.map((notification) =>{
+                      const Component = notification.link ? Link : 'div';
+                     return (
+                      <Component
                         key={notification.id}
-                        className={`p-6 rounded-xl border transition-all duration-200 hover:shadow-lg ${
+                        to={notification.link || '#'}
+                        className={`block p-6 rounded-xl border transition-all duration-200 hover:shadow-lg ${
                           notification.isRead
                             ? 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
                             : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 shadow-md'
@@ -103,9 +106,7 @@ const NotificationsPage = () => {
                                   {notification.title}
                                 </h3>
                                 <div className="flex items-center space-x-2 mt-1">
-                                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getPriorityColor(notification.priority)}`}>
-                                    {notification.priority}
-                                  </span>
+                                 
                                   {!notification.isRead && (
                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200 border border-teal-200 dark:border-teal-800">
                                       New
@@ -124,7 +125,11 @@ const NotificationsPage = () => {
                           <div className="flex items-center space-x-2 ml-4">
                             {!notification.isRead && (
                               <button
-                                onClick={() => handleMarkAsRead(notification.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevents the parent Link from being clicked
+                                  e.preventDefault();  // Prevents any default browser action
+                                  handleMarkAsRead(notification.id);
+                                }}
                                 className="p-2.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all duration-200"
                                 title="Mark as read"
                               >
@@ -132,7 +137,11 @@ const NotificationsPage = () => {
                               </button>
                             )}
                             <button
-                              onClick={() => handleDelete(notification.id)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevents the parent Link from being clicked
+                                e.preventDefault();  // Prevents any default browser action
+                                handleDelete(notification.id);
+                              }}
                               className="p-2.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
                               title="Delete notification"
                             >
@@ -140,8 +149,9 @@ const NotificationsPage = () => {
                             </button>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      </Component>
+                    )
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12">
