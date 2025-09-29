@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // <-- IMPORT useNavigate
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchPatientsByDoctor } from '../../store/slices/patientSlice';
-import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import AddPatientModal from '../doctor/AddPatientModal';
-// We no longer need PatientDetailsModal here, it's being replaced by a page.
 
 const PatientManagement = () => {
-  const navigate = useNavigate(); // <-- INITIALIZE useNavigate
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { patients, isLoading } = useAppSelector((state) => state.patient);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddPatientModalOpen, setAddPatientModalOpen] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      dispatch(fetchPatientsByDoctor());
-      setUser(storedUser);
-    }
+    dispatch(fetchPatientsByDoctor());
   }, [dispatch]);
 
   const filteredPatients = patients.filter(patient => {
@@ -29,7 +23,6 @@ const PatientManagement = () => {
     return patientName.includes(search) || patientEmail.includes(search);
   });
 
-  // --- MODIFIED: Handle navigation ---
   const handlePatientClick = (patientId) => {
     navigate(`/patient/${patientId}`);
   };
@@ -41,7 +34,6 @@ const PatientManagement = () => {
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <div>
-                  
                   <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Patient Management</h1>
                   <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
                     Manage your patients and their therapy records
@@ -58,7 +50,7 @@ const PatientManagement = () => {
             </div>
           </div>
 
-          {/* Search (No changes here) */}
+          {/* Search */}
           <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
               <div className="relative">
@@ -83,33 +75,43 @@ const PatientManagement = () => {
             </div>
             <div className="p-6">
               {isLoading ? (
-                <div className="animate-pulse space-y-4">{/* ... */}</div>
+                <div className="animate-pulse space-y-4">
+                    {[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>)}
+                </div>
               ) : filteredPatients.length > 0 ? (
                 <div className="space-y-4">
                   {filteredPatients.map((patient) => (
-                    // --- MODIFIED: Added onClick handler for navigation ---
                     <div
                       key={patient.id}
-                      onClick={() => handlePatientClick(patient.id)}
-                      className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer border border-slate-200 dark:border-slate-600 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-200 hover:shadow-lg"
+                      className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 transition-all duration-200"
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <div
+                        onClick={() => handlePatientClick(patient.id)}
+                        className="flex items-center space-x-4 cursor-pointer flex-grow min-w-0"
+                      >
+                        <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                           <UserGroupIcon className="h-6 w-6 text-white" />
                         </div>
-                        <div>
-                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <div className="min-w-0">
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                             {patient.user?.name}
                           </h3>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                             {patient.user?.email}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                      <div className="flex items-center space-x-2 flex-shrink-0 ml-4">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
                           Joined {new Date(patient.createdAt).toLocaleDateString()}
                         </p>
+                        <button
+                            onClick={() => handlePatientClick(patient.id)}
+                            className="p-2.5 text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                            title="View Patient Record & Feedback"
+                        >
+                            <ChatBubbleLeftRightIcon className="h-5 w-5" />
+                        </button>
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800">
                           Active
                         </span>
@@ -118,19 +120,21 @@ const PatientManagement = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">{/* ... */}</div>
+                <div className="text-center py-12">
+                    <UserGroupIcon className="mx-auto h-12 w-12 text-slate-400" />
+                    <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">No patients found</h3>
+                    <p className="mt-1 text-sm text-slate-500">Add a new patient to get started.</p>
+                </div>
               )}
             </div>
           </div>
           
-          {/* We no longer need the PatientDetailsModal here */}
-
           <AddPatientModal
             isOpen={isAddPatientModalOpen}
             onClose={() => setAddPatientModalOpen(false)}
             onPatientAdded={() => {
               setAddPatientModalOpen(false);
-              dispatch(fetchPatientsByDoctor()); // Refresh the patient list after adding a new patient
+              dispatch(fetchPatientsByDoctor());
             }}
           />
     </div>  
@@ -138,3 +142,4 @@ const PatientManagement = () => {
 };
 
 export default PatientManagement;
+

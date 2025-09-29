@@ -27,12 +27,15 @@ const FeedbackModal = ({ isOpen, onClose, dayNumber, planId, onFeedbackSubmitted
       };
 
       // 2. Construct the API URL using the environment variable
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/${planId}/feedback`;
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/treatment-plans/${planId}/feedback`;
 
       // 3. Send the data to your backend
       const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', // Changed to PUT as per the backend route for updating feedback
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}` // Added Authorization header
+        },
         body: JSON.stringify({
           dayNumber: dayNumber,
           feedbackData: feedbackData
@@ -40,7 +43,11 @@ const FeedbackModal = ({ isOpen, onClose, dayNumber, planId, onFeedbackSubmitted
       });
 
       if (!response.ok) {
-        throw new Error('Server responded with an error.');
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            `Server responded with an error: ${response.status} ${response.statusText}`
+        );
       }
 
       const result = await response.json();

@@ -1,3 +1,5 @@
+// treatmentPlan.js
+
 const express = require('express');
 const router = express.Router();
 const {
@@ -6,11 +8,18 @@ const {
     addFeedback
 } = require('../controllers/treatmentPlanController');
 
-// You can add authentication middleware here later if needed
-// const { protect, authorize } = require('../middleware/auth');
+// --- START: MODIFIED SECTION ---
+// Add authentication middleware. Assuming 'authenticate' is the correct middleware used elsewhere.
+const { authenticate } = require('../middleware/auth');
+
+// All routes require authentication
+router.use(authenticate);
+// --- END: MODIFIED SECTION ---
+
 
 router.post('/', createPlan);
 router.get('/patient/:patientId', getPlanForPatient);
-router.post('/:planId/feedback', addFeedback);
+//router.post('/:planId/feedback', addFeedback);
+router.put('/:planId/feedback', addFeedback);
 
 module.exports = router;

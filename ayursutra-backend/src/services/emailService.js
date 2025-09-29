@@ -71,6 +71,32 @@ const emailTemplates = {
       </div>
     `
   }),
+   new_feedback: (data) => ({
+        subject: `New Feedback from ${data.patientName} (Day ${data.day}) - AyurSutra`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #059669;">New Patient Feedback Received</h2>
+            <p>Dear Dr. ${data.doctorName || 'Doctor'},</p>
+            <p>You have received new daily feedback from your patient, <strong>${data.patientName}</strong>, for <strong>Day ${data.day}</strong> of their treatment plan.</p>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Feedback Summary:</h3>
+              <ul>
+                <li><strong>Pain Level:</strong> ${data.feedback.painLevel}/10</li>
+                <li><strong>Stress Level:</strong> ${data.feedback.stressLevel}/10</li>
+                <li><strong>Energy Level:</strong> ${data.feedback.energyLevel}/10</li>
+                <li><strong>Mental State:</strong> ${data.feedback.mentalState}</li>
+                <li><strong>Notes:</strong> ${data.feedback.notes || 'No additional notes.'}</li>
+              </ul>
+            </div>
+            <p>You can view the full patient record and all their feedback by clicking the button below:</p>
+            <a href="${process.env.FRONTEND_URL}/patient/${data.patientId}" 
+               style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              View Patient Record
+            </a>
+            <p>Best regards,<br>AyurSutra Team</p>
+          </div>
+        `
+    }),
   
   appointmentReminder: (data) => ({
     subject: 'Appointment Reminder - AyurSutra',

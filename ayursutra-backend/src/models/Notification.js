@@ -20,7 +20,9 @@ const notificationSchema = new Schema({
       'payment_confirmation',
       'payment_failed',
       'general',
-      'system'
+      'system',
+      'feedback', // Added to support feedback notifications
+      'treatment_plan' // Added to support treatment plan notifications
     ],
     required: true
   },
@@ -104,6 +106,7 @@ notificationSchema.statics.createNotification = function(userId, type, title, me
     title,
     message,
     data,
+    link: options.link || '',
     priority: options.priority || 'medium',
     scheduledFor: options.scheduledFor || new Date(),
     deliveryMethod: options.deliveryMethod || ['in_app']
@@ -169,3 +172,4 @@ notificationSchema.methods.markAsSent = function() {
 };
 
 export default model('Notification', notificationSchema);
+

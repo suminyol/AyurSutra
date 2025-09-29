@@ -40,8 +40,10 @@ const PatientDashboard = () => {
       
       setIsPlanLoading(true);
       try {
-        const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/patient/${patientId}`;
-        const response = await fetch(apiUrl);
+        const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/treatment-plans/patient/${patientId}`;
+       const response = await fetch(apiUrl, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}` }
+        });
 
         if (response.ok) {
           const result = await response.json();

@@ -74,7 +74,7 @@ app.use('/api/treatments', treatmentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/therapy', therapyRoutes);
-app.use('/api/v1/treatment-plans', treatmentPlanRoutes);
+app.use('/api/treatment-plans', treatmentPlanRoutes);
 
 // Swagger documentation
 if (process.env.NODE_ENV === 'development') {
