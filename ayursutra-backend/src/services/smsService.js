@@ -33,7 +33,8 @@ const smsTemplates = {
   
   appointment_reminder: (data) => 
     `Reminder: You have an appointment with Dr. ${data.doctorName} tomorrow at ${data.time}. Please arrive 15 mins early. AyurSutra`,
-  
+  new_feedback: (data) => 
+    `AyurSutra: New feedback for Day ${data.day} from patient ${data.patientName}. Mood: ${data.feedback.mentalState}, Pain: ${data.feedback.painLevel}/10. Please check your dashboard.`,
   treatment_plan: (data) =>
     `Hi ${data.patientName}, your new report from Dr. ${data.doctorName} is available in your AyurSutra dashboard.`
   // ... other templates

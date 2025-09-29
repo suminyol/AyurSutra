@@ -31,7 +31,7 @@ const authenticate = async (req, res, next) => {
     }
 
     // Check for token in cookies
-    if (!token && req.cookies.token) {
+    if (!token && req.cookies && req.cookies.token) {
       token = req.cookies.token;
     }
 
@@ -219,3 +219,4 @@ module.exports = {
   checkOwnership,
   authRateLimit
 };
+

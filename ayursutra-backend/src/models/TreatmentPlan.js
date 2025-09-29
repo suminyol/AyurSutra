@@ -18,6 +18,7 @@ const DayScheduleSchema = new mongoose.Schema({
     day: { type: Number, required: true },
     plan: [{ type: String }],
     doctor_consultation: { type: String },
+    therapist_name: { type: String }, // Added therapist_name field
     feedback: { type: FeedbackSchema }
 });
 

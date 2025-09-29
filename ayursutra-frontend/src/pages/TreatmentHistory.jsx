@@ -36,8 +36,11 @@ const TreatmentHistory = () => {
 
             setIsLoading(true);
             try {
-                const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/treatment-plans/patient/${patientId}`;
-                const response = await fetch(apiUrl);
+                const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/treatment-plans/patient/${patientId}`;
+               const response = await fetch(apiUrl, {
+ headers: { 'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}` }
+ });
+
 
                 if (response.ok) {
                     const result = await response.json();
@@ -144,6 +147,20 @@ const TreatmentHistory = () => {
                                                 </li>
                                             ))}
                                         </ul>
+                                        
+                                        {/* Therapist Name Display */}
+                                        {dayPlan.therapist_name && (
+                                            <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-600">
+                                                <div className="flex items-center space-x-2">
+                                                    <UserIcon className="w-4 h-4 text-teal-600" />
+                                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Therapist:</span>
+                                                    <span className="text-sm text-teal-600 dark:text-teal-400 font-medium">
+                                                        {dayPlan.therapist_name}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
                                         <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-600">
                                             {dayPlan.feedback ? (
                                                 <p className="w-full text-center px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">Feedback Submitted!</p>
