@@ -5,7 +5,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { io } from 'socket.io-client'; // 👈 Import Socket.IO client
 import { store } from './store';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
-import { fetchUserProfile } from './store/slices/authSlice';
+import { fetchUserProfile, setUser } from './store/slices/authSlice';
 import { fetchNotifications, addLiveNotification } from './store/slices/notificationSlice'; // 👈 Import the new real-time action
 import { ROUTES } from './constants';
 
@@ -51,12 +51,20 @@ function AppContent() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user, isLoading } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    const token = localStorage.getItem('ayursutra_auth_token');
-    if (token && !user) {
-      dispatch(fetchUserProfile());
-    }
-  }, [dispatch, user]);
+   useEffect(() => {
+    const bootstrapApp = () => {
+      const storedUser = localStorage.getItem('ayursutra_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          dispatch(setUser(parsedUser)); // Restore the session
+        } catch (error) {
+          console.error("Failed to parse user from localStorage", error);
+        }
+      }
+    };
+    bootstrapApp();
+  }, [dispatch]);
 
   // --- 👇 REAL-TIME NOTIFICATION LOGIC ---
   useEffect(() => {

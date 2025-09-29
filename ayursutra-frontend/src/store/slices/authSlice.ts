@@ -51,6 +51,8 @@ export const logoutUser = createAsyncThunk(
     try {
       await authService.logout();
       localStorage.removeItem('ayursutra_auth_token');
+      localStorage.removeItem('ayursutra_user'); 
+
       return null;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Logout failed');
