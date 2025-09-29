@@ -77,9 +77,16 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    setUser: (state, action: PayloadAction<User>) => {
+    setUser: (state, action) => {
       state.user = action.payload;
-      state.isAuthenticated = true;
+      state.isAuthenticated = !!action.payload;
+      state.isLoading = false;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      localStorage.removeItem('ayursutra_auth_token');
+      localStorage.removeItem('ayursutra_user'); // Also clear user object
     },
     clearAuth: (state) => {
       state.user = null;
@@ -101,6 +108,7 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+        localStorage.setItem('ayursutra_user', JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -117,6 +125,7 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+        localStorage.setItem('ayursutra_user', JSON.stringify(action.payload.user));
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -152,5 +161,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setUser, clearAuth } = authSlice.actions;
+export const { clearError, setUser,logout, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

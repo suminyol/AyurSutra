@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- IMPORT useNavigate
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchPatientsByDoctor } from '../../store/slices/patientSlice';
-import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import AddPatientModal from '../doctor/AddPatientModal';
 // We no longer need PatientDetailsModal here, it's being replaced by a page.
 
@@ -41,7 +41,13 @@ const PatientManagement = () => {
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <div>
-                  
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                  >
+                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                    Back 
+                  </button>
                   <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Patient Management</h1>
                   <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
                     Manage your patients and their therapy records

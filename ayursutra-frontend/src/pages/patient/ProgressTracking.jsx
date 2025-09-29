@@ -1,5 +1,7 @@
 import { useState, Fragment, useMemo, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import {
   ChartBarIcon,
   CalendarDaysIcon,
@@ -69,7 +71,7 @@ const ProgressTracking = () => {
   // State for the modal visibility and the item being edited
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-
+  const navigate = useNavigate();
   const handleOpenModal = (item) => {
     // Set a copy of the item to edit, so we don't change the original until we save
     setEditingItem({ ...item });
@@ -126,6 +128,13 @@ const ProgressTracking = () => {
     <div className="space-y-8">
       <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back 
+          </button>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Progress Tracking</h1>
           <p className="mt-2 text-base text-slate-600 dark:text-slate-400">Monitor your therapy progress and recovery milestones</p>
         </div>

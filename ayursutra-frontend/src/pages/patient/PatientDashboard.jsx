@@ -63,32 +63,66 @@ const PatientDashboard = () => {
     
   }, [dispatch, user?._id]);
 
+  const now = new Date();
+
   const upcomingAppointments = appointments
-    .filter(appointment => appointment.status === 'scheduled')
+    .filter(appointment => {
+      // Create a reliable Date object from the appointment's date and time
+      const [year, month, day] = appointment.date.split('T')[0].split('-').map(Number);
+      const [hours, minutes] = appointment.time.split(':').map(Number);
+      const appointmentDate = new Date(year, month - 1, day, hours, minutes);
+      
+      return appointment.status === 'scheduled' && appointmentDate > now;
+    })
     .slice(0, 5);
+
+  const completedAppointments = appointments
+    .filter(appointment => {
+      const [year, month, day] = appointment.date.split('T')[0].split('-').map(Number);
+      const [hours, minutes] = appointment.time.split(':').map(Number);
+      const appointmentDate = new Date(year, month - 1, day, hours, minutes);
+      
+      // An appointment is completed if its status is 'completed' OR if it was scheduled for a time in the past
+      return appointment.status === 'completed' || (appointment.status === 'scheduled' && appointmentDate <= now);
+    });
+
+    let progressPercentage = 'N/A';
+  if (treatmentPlan && treatmentPlan.createdAt && treatmentPlan.schedule?.length > 0) {
+    const startDate = new Date(treatmentPlan.createdAt);
+    const today = new Date();
+    const totalDays = treatmentPlan.schedule.length;
+
+    // Calculate the difference in milliseconds
+    const timeDifference = today.getTime() - startDate.getTime();
+
+    // Convert milliseconds to days and add 1 (to count Day 1)
+    let daysPassed = Math.floor(timeDifference / (1000 * 3600 * 24)) + 1;
+
+    // Ensure progress doesn't go below 0% or above 100%
+    daysPassed = Math.max(1, Math.min(daysPassed, totalDays));
+
+    const percentage = Math.round((daysPassed / totalDays) * 100);
+    progressPercentage = `${percentage}% `;
+  }
 
   const recentNotifications = notifications.slice(0, 5);
 
   const stats = [
     {
       name: 'Upcoming Appointments',
-      value: appointments.filter(a => a.status === 'scheduled').length,
+      value: upcomingAppointments.length,
       icon: CalendarDaysIcon,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-      borderColor: 'border-emerald-200 dark:border-emerald-800',
+      // ...
     },
     {
       name: 'Completed Appointments',
-      value: appointments.filter(a => a.status === 'completed').length,
+      value: completedAppointments.length,
       icon: ClockIcon,
-      color: 'text-teal-600',
-      bgColor: 'bg-teal-50 dark:bg-teal-900/20',
-      borderColor: 'border-teal-200 dark:border-teal-800',
+      // ...
     },
     {
       name: 'Treatment Progress',
-      value: treatmentPlan ? `${treatmentPlan.schedule?.length || 0} days` : 'N/A',
+      value: progressPercentage,
       icon: ChartBarIcon,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -280,7 +314,7 @@ const PatientDashboard = () => {
                     Upcoming Treatments
                   </h3>
                   <Link
-                    to={ROUTES.TREATMENT_HISTORY}
+                    to={ROUTES.MY_APPOINTMENTS}
                     className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                   >
                     <span>View all</span>

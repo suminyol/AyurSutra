@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchNotifications, markNotificationAsRead, deleteNotification } from '../store/slices/notificationSlice';
-import { BellIcon, TrashIcon, CheckIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { BellIcon, TrashIcon, CheckIcon, SparklesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const NotificationsPage = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { notifications, isLoading } = useAppSelector((state) => state.notifications);
 
   useEffect(() => {
@@ -48,7 +50,13 @@ const NotificationsPage = () => {
             {/* Header Section */}
             <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
               <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
-                
+                <button
+                onClick={() => navigate(-1)}
+                className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back 
+              </button>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Notifications</h1>
                 <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
                   Stay updated with your therapy sessions and important alerts

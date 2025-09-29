@@ -9,17 +9,15 @@ import {
   ClockIcon,
   UserGroupIcon,
   ChartBarIcon,
-  BellIcon,
   UserIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
-  { name: 'Dashboard', href: ROUTES.DASHBOARD, icon: HomeIcon },
+  { name: 'Dashboard', href: ROUTES.PATIENT_DASHBOARD, icon: HomeIcon },
   { name: 'Schedule Appointment', href: ROUTES.APPOINTMENT_SCHEDULE, icon: CalendarDaysIcon },
   { name: 'Treatment Plan', href: ROUTES.TREATMENT_HISTORY, icon: ClockIcon },
   { name: 'Progress Tracking', href: ROUTES.PROGRESS_TRACKING, icon: ChartBarIcon },
-  { name: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: BellIcon },
   { name: 'Profile', href: ROUTES.PROFILE, icon: UserIcon },
   { name: 'Settings', href: ROUTES.SETTINGS, icon: Cog6ToothIcon },
 ];
@@ -27,13 +25,13 @@ const navigation = [
 const doctorNavigation = [
   { name: 'Dashboard', href: ROUTES.DOCTOR_DASHBOARD, icon: HomeIcon },
   { name: 'Patient Management', href: ROUTES.PATIENT_MANAGEMENT, icon: UserGroupIcon },
-  { name: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: BellIcon },
   { name: 'Profile', href: ROUTES.PROFILE, icon: UserIcon },
   { name: 'Settings', href: ROUTES.SETTINGS, icon: Cog6ToothIcon },
 ];
 
 const Sidebar = ({ isOpen, onClose, user }) => {
   const location = useLocation();
+  
   const currentNavigation = user?.role === 'doctor' ? doctorNavigation : navigation;
 
   const SidebarContent = () => (
@@ -41,7 +39,14 @@ const Sidebar = ({ isOpen, onClose, user }) => {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         {currentNavigation.map((item) => {
-          const isActive = location.pathname === item.href;
+          // --- THIS IS THE CORRECTED LOGIC ---
+          // For Dashboard links, we use an exact match.
+          // For all other links, we check if the current URL starts with the link's path.
+          const isDashboardLink = item.href === ROUTES.PATIENT_DASHBOARD || item.href === ROUTES.DOCTOR_DASHBOARD;
+          const isActive = isDashboardLink
+            ? location.pathname === item.href
+            : location.pathname.startsWith(item.href);
+
           return (
             <Link
               key={item.name}

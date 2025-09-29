@@ -15,6 +15,7 @@ export const ROUTES = {
   PATIENT_DASHBOARD: '/patient/dashboard',
   DOCTOR_DASHBOARD: '/doctor/dashboard',
   APPOINTMENT_SCHEDULE: '/appointment/schedule',
+  MY_APPOINTMENTS: '/my-appointments',
   TREATMENT_HISTORY: '/treatment/history',
   PATIENT_MANAGEMENT: '/doctor/patients',
   PROGRESS_TRACKING: '/patient/progress',

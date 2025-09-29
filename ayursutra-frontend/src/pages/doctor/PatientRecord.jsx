@@ -244,9 +244,12 @@ const PatientRecord = () => {
                     <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
                          <div className="flex justify-between items-start">
                              <div>
-                                <button onClick={() => navigate('/patients')} className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500">
+                                <button
+                                    onClick={() => navigate(-1)}
+                                    className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                                >
                                     <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                                    Back to Patient List
+                                    Back 
                                 </button>
                                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Ayurvedic Assessment</h1>
                                 <p className="mt-2 text-base text-slate-600 dark:text-slate-400">

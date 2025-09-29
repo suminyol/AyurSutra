@@ -1,6 +1,7 @@
 const http = require('http');
 const { app, connectDB } = require('./app');
 const { initSocket } = require('./socket'); // Import the Socket.IO initializer
+const { startScheduledJobs } = require('./services/cronService');
 
 const PORT = process.env.PORT || 3000;
 
@@ -14,7 +15,7 @@ initSocket(server);
 const startServer = async () => {
   try {
     await connectDB();
-    
+    startScheduledJobs();
     // 3. Use the new server object to listen for connections
     server.listen(PORT, () => {
       console.log(`

@@ -3,8 +3,10 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchAppointments, createAppointment } from '../store/slices/appointmentSlice';
 import { fetchDoctors } from '../store/slices/doctorSlice';
 import { fetchPatients } from '../store/slices/patientSlice';
-import { CalendarDaysIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, ClockIcon, UserIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
 
 const getInitialDate = () => {
   const now = new Date();
@@ -18,7 +20,7 @@ const getInitialDate = () => {
 
 const AppointmentSchedule = () => {
   const dispatch = useAppDispatch();
-  
+  const navigate = useNavigate();
   // Selectors for Redux state
   const { user } = useAppSelector((state) => state.auth);
   const { appointments, isLoading: isBooking } = useAppSelector((state) => state.appointments);
@@ -129,6 +131,7 @@ const AppointmentSchedule = () => {
       <div className="space-y-8">
         <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
           <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
+          
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">All Appointments</h1>
             <p className="mt-2 text-base text-slate-600 dark:text-slate-400">View and manage all scheduled patient appointments.</p>
           </div>
@@ -170,6 +173,13 @@ const AppointmentSchedule = () => {
     <div className="space-y-8">
       <div className="bg-white dark:bg-slate-800 overflow-hidden shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700">
         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-6 border-b border-slate-200 dark:border-slate-700">
+        <button
+            onClick={() => navigate(-1)}
+            className="mb-4 inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back 
+          </button>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Schedule Appointment</h1>
           <p className="mt-2 text-base text-slate-600 dark:text-slate-400">Book your consultation or follow-up appointments</p>
         </div>
