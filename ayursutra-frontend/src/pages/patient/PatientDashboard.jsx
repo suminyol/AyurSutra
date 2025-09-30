@@ -165,6 +165,17 @@ const PatientDashboard = () => {
     },
   ];
 
+   const handleCancel = async (appointmentId) => {
+      if (window.confirm('Are you sure you want to cancel this appointment?')) {
+        try {
+          await dispatch(cancelAppointment(appointmentId)).unwrap();
+          toast.success('Appointment cancelled successfully.');
+        } catch (error) {
+          toast.error(error || 'Failed to cancel appointment.');
+        }
+      }
+    };
+
   return (
     <div className="space-y-8">
           {/* Welcome Section */}

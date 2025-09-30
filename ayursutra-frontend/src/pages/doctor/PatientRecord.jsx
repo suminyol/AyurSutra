@@ -56,7 +56,6 @@ const getInitialFormData = () => {
     return initialState;
 };
 
-
 const PatientRecord = () => {
     const { patientId } = useParams();
     const navigate = useNavigate();
@@ -138,8 +137,78 @@ const PatientRecord = () => {
         }
     };
 
+    const formatDataForAI = (data) => {
+      let reportString = "Ayurvedic Patient Assessment Report:\n\n";
+      Object.entries(FORM_SECTIONS).forEach(([sectionTitle, fields]) => {
+        reportString += `--- ${sectionTitle} ---\n`;
+        Object.entries(fields).forEach(([key, config]) => {
+          if (config.type === 'select') {
+            if (data[key]) reportString += `${config.label}: ${data[key]}\n`;
+          } else if (config.type === 'checkbox') {
+            const selectedSymptoms = Object.entries(data[key] || {})
+              .filter(([, isChecked]) => isChecked)
+              .map(([symptomKey]) => config.options.find(opt => opt.replace(/[\/\s-]/g, '') === symptomKey))
+              .filter(Boolean);
+            if (selectedSymptoms.length > 0) {
+              reportString += `${config.label}: ${selectedSymptoms.join(', ')}\n`;
+              reportString += `Severity: ${data[config.severity]}\n`;
+            }
+          }
+        });
+        reportString += "\n";
+      });
+      return reportString;
+    };
+
     const handleGenerateSolution = async () => {
-      toast.success("Generate Solution clicked! (API logic to be added)");
+        if (progress < 100) {
+            toast.error('Please complete the entire form before generating a solution.');
+            return;
+        }
+
+        const createPlanPromise = async () => {
+            const formattedDataString = formatDataForAI(formData);
+
+            const aiResponse = await fetch("http://localhost:8000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: formattedDataString }),
+            });
+            if (!aiResponse.ok) throw new Error('Failed to get response from AI service.');
+            const planFromAI = await aiResponse.json();
+
+            const planData = {
+                patientId: patientId,
+                doctorId: loggedInDoctor?.doctorId,
+                patientName: currentPatient?.user?.name || 'Unknown',
+                summary: planFromAI.summary,
+                schedule: planFromAI.schedule,
+                formData: formData
+            };
+
+            const serverResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/treatment-plans`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${localStorage.getItem('ayursutra_auth_token')}`
+                },
+                body: JSON.stringify(planData),
+            });
+
+            if (!serverResponse.ok) {
+                const errorResult = await serverResponse.json();
+                throw new Error(errorResult.message || 'Failed to save treatment plan.');
+            }
+
+            const savedPlan = await serverResponse.json();
+            setTreatment(savedPlan.data); // Update the UI to show the new plan
+        };
+
+        toast.promise(createPlanPromise(), {
+            loading: 'Generating and saving plan...',
+            success: 'Treatment plan created successfully!',
+            error: (err) => err.message || 'Failed to create plan.',
+        });
     };
     
     const handleEditClick = () => {
@@ -152,7 +221,7 @@ const PatientRecord = () => {
         setEditedPlan(null);
     };
 
-   const handleSaveEdits = async () => {
+    const handleSaveEdits = async () => {
         if (!editedPlan?._id) {
             toast.error("Cannot save: Plan ID is missing.");
             return;

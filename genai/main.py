@@ -7,6 +7,7 @@ from system_prompt import scheduler_system_prompt,panchkarma_context
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 import os
+import json
 
 
 load_dotenv()
@@ -25,11 +26,7 @@ vector_db = QdrantVectorStore.from_existing_collection(
 
 # client = OpenAI()
 
-
-client = OpenAI(
-    api_key= os.getenv('GEMINI_API_KEY'),
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-)
+client = OpenAI() # This automatically uses your OPENAI_API_KEY from the .env file
 
 
 class State(TypedDict):
@@ -64,16 +61,16 @@ def chat_node(state : State):
 
     """
 
-    response = client.beta.chat.completions.parse(
-        model= "gemini-2.5-flash",
-        response_format=ScheduleClassifier,
-        messages= [
-            {"role" : "assistant", "content" : SYSTEM_PROMPT},
-            {"role" : "user", "content" : patient_symptoms}
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",  # Use an OpenAI model
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": patient_symptoms}
         ]
     )
-
-    state["schedule"] = response.choices[0].message.parsed.schedule
+    schedule_data = json.loads(response.choices[0].message.content)
+    state["schedule"] = schedule_data["schedule"]
 
     return state
 
