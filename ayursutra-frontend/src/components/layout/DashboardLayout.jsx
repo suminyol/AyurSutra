@@ -19,8 +19,9 @@ const DashboardLayout = ({ children }) => {
       <Header onMenuClick={() => setSidebarOpen(true)} user={user} />
       {/* Main content area */}
       <div className="lg:pl-64">
-        <main className="pt-16 min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="pt-12 min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
