@@ -73,7 +73,7 @@ const startScheduledJobs = () => {
       console.error('❌ Error sending daily treatment reminders:', error);
     }
   });
-  cron.schedule('0 8 * * *', async () => {
+  cron.schedule('* * * * *', async () => {
     console.log('🗓️ Running daily job: Sending appointment reminders...');
     try {
       const today = new Date();
