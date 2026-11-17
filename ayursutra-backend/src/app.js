@@ -6,24 +6,6 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Import routes
-
-
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
-const patientRoutes = require('./routes/patient');
-const doctorRoutes = require('./routes/doctor');
-const appointmentRoutes = require('./routes/appointment');
-const treatmentRoutes = require('./routes/treatment');
-const paymentRoutes = require('./routes/payment');
-const notificationRoutes = require('./routes/notification');
-const therapyRoutes = require('./routes/therapy');
-const treatmentPlanRoutes = require('./routes/treatmentPlan'); // Added this line
-
-
-// Import middleware
-const errorHandler = require('./middleware/errorHandler');
-const { notFound } = require('./middleware/notFound');
 
 const app = express();
 
@@ -48,6 +30,25 @@ app.get("/", (req, res) => {
 app.get("/favicon.ico", (req, res) => {
     res.status(204).end();
 });
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const patientRoutes = require('./routes/patient');
+const doctorRoutes = require('./routes/doctor');
+const appointmentRoutes = require('./routes/appointment');
+const treatmentRoutes = require('./routes/treatment');
+const paymentRoutes = require('./routes/payment');
+const notificationRoutes = require('./routes/notification');
+const therapyRoutes = require('./routes/therapy');
+const treatmentPlanRoutes = require('./routes/treatmentPlan'); // Added this line
+
+
+// Import middleware
+const errorHandler = require('./middleware/errorHandler');
+const { notFound } = require('./middleware/notFound');
+
+
 
 // Rate limiting
 const limiter = rateLimit({
