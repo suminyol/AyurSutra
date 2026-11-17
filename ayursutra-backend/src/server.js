@@ -2,7 +2,8 @@
 require('dotenv').config();
 
 const http = require('http');
-const { app, connectDB } = require('./app');
+const app = require('./app');
+const connectDB = app.connectDB;
 const { initSocket } = require('./socket');
 const { startScheduledJobs } = require('./services/cronService');
 

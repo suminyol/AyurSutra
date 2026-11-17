@@ -37,6 +37,16 @@ app.use(
     : morgan('combined')
 );
 
+// Ensure MongoDB is connected before handling API requests
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ==========================================
 // RATE LIMITING
 // ==========================================
@@ -172,7 +182,7 @@ const connectDB = async () => {
 
 // Keep both exports for local server.js.
 // Vercel receives a function through api/index.js.
-module.exports = {
-  app,
-  connectDB
-};
+// Export the Express app directly for Vercel.
+// Keep connectDB attached for the local server.
+module.exports = app;
+module.exports.connectDB = connectDB;
