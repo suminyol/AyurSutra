@@ -68,30 +68,42 @@ function AppContent() {
   }, [dispatch]);
 
   // --- 👇 REAL-TIME NOTIFICATION LOGIC ---
-  useEffect(() => {
-    if (isAuthenticated && user?.id) {
-      dispatch(fetchNotifications());
+ useEffect(() => {
+  if (!isAuthenticated || !user?.id) return;
 
-      // THE FIX: Use `import.meta.env.VITE_API_BASE_URL` for Vite environment variables
-      const socket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000', {
-        transports: ['websocket'] 
-      });
+  dispatch(fetchNotifications());
 
-      socket.emit('join', { userId: user.id });
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://localhost:3000/api';
 
-      socket.on('new_notification', (notification) => {
-        dispatch(addLiveNotification(notification));
-        
-        toast.success(`🔔 New Notification: ${notification.title}`, {
-          duration: 5000,
-        });
-      });
+  const SOCKET_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
-      return () => {
-        socket.disconnect();
-      };
-    }
-  }, [dispatch, isAuthenticated, user?.id]);
+  const socket = io(SOCKET_URL, {
+    transports: ['websocket'],
+    withCredentials: true,
+  });
+
+  socket.on('connect', () => {
+    socket.emit('join', { userId: user.id });
+  });
+
+  socket.on('new_notification', (notification) => {
+    dispatch(addLiveNotification(notification));
+
+    toast.success(`🔔 New Notification: ${notification.title}`, {
+      duration: 5000,
+    });
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error.message);
+  });
+
+  return () => {
+    socket.disconnect();
+  };
+}, [dispatch, isAuthenticated, user?.id]);
   // --- END REAL-TIME NOTIFICATION LOGIC ---
 
   if (isLoading) {
