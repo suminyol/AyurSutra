@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Import routes
+
+
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const patientRoutes = require('./routes/patient');
@@ -28,11 +30,24 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
+
 // CORS configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
+
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Welcome to AyurSutra Backend API",
+        documentation: "/api-docs",
+        health: "/health"
+    });
+});
+app.get("/favicon.ico", (req, res) => {
+    res.status(204).end();
+});
 
 // Rate limiting
 const limiter = rateLimit({
