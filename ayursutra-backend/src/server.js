@@ -1,23 +1,26 @@
+
+require('dotenv').config();
+
 const http = require('http');
 const { app, connectDB } = require('./app');
-const { initSocket } = require('./socket'); // Import the Socket.IO initializer
+const { initSocket } = require('./socket');
 const { startScheduledJobs } = require('./services/cronService');
 
 const PORT = process.env.PORT || 3000;
 
-// 1. Create an HTTP server and pass the Express app to it
 const server = http.createServer(app);
 
-// 2. Initialize Socket.IO and attach it to the HTTP server
+// Initialize Socket.IO for local/persistent server hosting.
 initSocket(server);
 
-// Connect to database and start server
 const startServer = async () => {
   try {
     await connectDB();
+
+    // Start cron jobs only in the persistent server process.
     startScheduledJobs();
-    // 3. Use the new server object to listen for connections
-    server.listen(PORT, () => {
+
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`
 🚀 AyurSutra Backend Server is running!
 📍 Server: http://localhost:${PORT}
@@ -32,5 +35,28 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Graceful shutdown
+const shutdown = async () => {
+  console.log('Shutting down AyurSutra server...');
 
+  server.close(async () => {
+    try {
+      await require('./socket').closeSocket?.();
+      await mongooseConnectionClose();
+      process.exit(0);
+    } catch (error) {
+      console.error('Shutdown error:', error);
+      process.exit(1);
+    }
+  });
+};
+
+const mongooseConnectionClose = async () => {
+  const mongoose = require('mongoose');
+  await mongoose.connection.close();
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+startServer();

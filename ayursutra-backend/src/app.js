@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,32 +7,87 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-
 const app = express();
 
-// Security middleware
+// ==========================================
+// SECURITY MIDDLEWARE
+// ==========================================
+
 app.use(helmet());
 
-
-// CORS configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 
-app.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: "Welcome to AyurSutra Backend API",
-        documentation: "/api-docs",
-        health: "/health"
-    });
-});
-app.get("/favicon.ico", (req, res) => {
-    res.status(204).end();
+// ==========================================
+// BODY PARSING
+// ==========================================
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ==========================================
+// LOGGING
+// ==========================================
+
+app.use(
+  process.env.NODE_ENV === 'development'
+    ? morgan('dev')
+    : morgan('combined')
+);
+
+// ==========================================
+// RATE LIMITING
+// ==========================================
+
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100,
+  message: {
+    error: 'Too many requests from this IP, please try again later.'
+  }
 });
 
-// Import routes
+app.use('/api/', limiter);
+
+// ==========================================
+// ROOT ROUTE
+// ==========================================
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to AyurSutra Backend API',
+    documentation: '/api-docs',
+    health: '/health'
+  });
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
+// ==========================================
+// HEALTH CHECK
+// ==========================================
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'AyurSutra API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    database: mongoose.connection.readyState === 1
+      ? 'connected'
+      : 'disconnected'
+  });
+});
+
+// ==========================================
+// IMPORT ROUTES
+// ==========================================
+
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const patientRoutes = require('./routes/patient');
@@ -41,47 +97,12 @@ const treatmentRoutes = require('./routes/treatment');
 const paymentRoutes = require('./routes/payment');
 const notificationRoutes = require('./routes/notification');
 const therapyRoutes = require('./routes/therapy');
-const treatmentPlanRoutes = require('./routes/treatmentPlan'); // Added this line
+const treatmentPlanRoutes = require('./routes/treatmentPlan');
 
+// ==========================================
+// API ROUTES
+// ==========================================
 
-// Import middleware
-const errorHandler = require('./middleware/errorHandler');
-const { notFound } = require('./middleware/notFound');
-
-
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: {
-    error: 'Too many requests from this IP, please try again later.'
-  }
-});
-app.use('/api/', limiter);
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Logging middleware
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'AyurSutra API is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
-
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
@@ -93,35 +114,65 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/therapy', therapyRoutes);
 app.use('/api/treatment-plans', treatmentPlanRoutes);
 
-// Swagger documentation
-if (process.env.NODE_ENV === 'development') {
-  const swaggerUi = require('swagger-ui-express');
-  const swaggerSpec = require('./config/swagger');
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-}
+// ==========================================
+// SWAGGER DOCUMENTATION
+// ==========================================
 
-// Error handling middleware
+// Available in both development and production.
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
+
+// ==========================================
+// ERROR HANDLING
+// ==========================================
+
+const errorHandler = require('./middleware/errorHandler');
+const { notFound } = require('./middleware/notFound');
+
 app.use(notFound);
 app.use(errorHandler);
 
-// Database connection
+// ==========================================
+// DATABASE CONNECTION
+// ==========================================
+
+// Reuse the connection across serverless invocations.
+let dbConnectionPromise = null;
+
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error('Database connection error:', error);
-    process.exit(1);
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
+
+  if (!dbConnectionPromise) {
+    dbConnectionPromise = mongoose.connect(process.env.MONGODB_URI)
+      .then((conn) => {
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        return conn.connection;
+      })
+      .catch((error) => {
+        dbConnectionPromise = null;
+        console.error('Database connection error:', error.message);
+        throw error;
+      });
+  }
+
+  return dbConnectionPromise;
 };
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  mongoose.connection.close(() => {
-    console.log('MongoDB connection closed.');
-    process.exit(0);
-  });
-});
+// ==========================================
+// EXPORTS
+// ==========================================
 
-module.exports = { app, connectDB };
+// Keep both exports for local server.js.
+// Vercel receives a function through api/index.js.
+module.exports = {
+  app,
+  connectDB
+};
